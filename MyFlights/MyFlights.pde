@@ -7,7 +7,7 @@ import java.util.*;
 ArrayList<Flight> flights;
 ArrayList<Flight> filteredFlights;
 HashMap<String, Airport> airports;
-
+//Hello 
 // UI variables
 int currentScreen = 0; // 0: main menu, 1: airport view, 2: date range view, 3: lateness view
 int startIndex = 0;
@@ -74,7 +74,7 @@ void drawMainMenu() {
     // Fallback if image not found
     background(240);
   }
-  
+  //Hello
   textFont(titleFont);
   fill(50);
   textAlign(CENTER);
