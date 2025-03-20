@@ -7,7 +7,7 @@ import java.util.*;
 ArrayList<Flight> flights;
 ArrayList<Flight> filteredFlights;
 HashMap<String, Airport> airports;
-
+//Hello 
 // UI variables
 int currentScreen = 0; // 0: main menu, 1: airport view, 2: date range view, 3: lateness view
 int startIndex = 0;
@@ -44,6 +44,8 @@ void setup() {
   filteredFlights = new ArrayList<Flight>(flights);
 }
 
+
+
 void draw() {
   background(240);
   
@@ -67,6 +69,9 @@ void draw() {
   drawNavigationBar();
 }
 
+
+
+
 void drawMainMenu() {
    if (mainMenuBackground != null) {
     image(mainMenuBackground, 0, 0, width, height);
@@ -74,7 +79,7 @@ void drawMainMenu() {
     // Fallback if image not found
     background(240);
   }
-  
+  //Hello
   textFont(titleFont);
   fill(50);
   textAlign(CENTER);
@@ -90,6 +95,10 @@ void drawMainMenu() {
   // Draw a sample visualization of all data
   drawSummaryVisualization();
 }
+
+
+
+
 
 void drawAirportView() {
   textFont(titleFont);
@@ -120,6 +129,10 @@ void drawAirportView() {
     drawAirportStats(selectedAirport);
   }
 }
+
+
+
+
 
 void drawDateRangeView() {
   textFont(titleFont);
