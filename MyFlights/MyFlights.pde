@@ -2,7 +2,8 @@ import java.util.*;
 
 // Flight Data Visualization System
 // Created for CSU11013 Programming Project 2025
-// go 
+
+// RORY
 // Data structures
 ArrayList<Flight> flights;
 ArrayList<Flight> filteredFlights;
@@ -52,16 +53,16 @@ void draw() {
   // Draw the appropriate screen based on currentScreen value
   switch(currentScreen) {
     case 0:
-      drawMainMenu(); //Main Screen
+      drawMainMenu();
       break;
     case 1:
-      drawAirportView(); //Aiirport Menu
+      drawAirportView();
       break;
     case 2:
-      drawDateRangeView(); // Range of Dates
+      drawDateRangeView();
       break;
     case 3:
-      drawLatenessView(); // Late Flights
+      drawLatenessView();
       break;
   }
   
@@ -132,7 +133,7 @@ void drawAirportView() {
 
 
 
-
+// PRAD
 
 void drawDateRangeView() {
   textFont(titleFont);
@@ -216,6 +217,8 @@ void drawButton(String label, float x, float y, float w, float h, boolean select
   text(label, x + w/2, y + h/2);
 }
 
+
+
 void drawFlightTable(float x, float y, float w, float h) {
   fill(255);
   rect(x, y, w, h);
@@ -278,6 +281,8 @@ void drawFlightTable(float x, float y, float w, float h) {
     }
   }
 }
+
+// YANKO
 void drawSummaryVisualization() {
   // Draw a simple summary visualization at the bottom of the main screen
   fill(255);
@@ -328,6 +333,8 @@ void drawSummaryVisualization() {
     text(count, 100 + i * barWidth + barWidth/2, 700 - barHeight - 10);
   }
 }
+  // SUMAMA
+
 void drawAirportStats(String airport) {
   // Count flights to/from the selected airport
   int departingFlights = 0;
@@ -403,7 +410,7 @@ void drawAirportStats(String airport) {
 }
 
 
-
+    // YUSUF 
 void drawDateRangeVisualization() {
   // Draw a line chart of flights per day
   HashMap<String, Integer> flightsPerDay = new HashMap<String, Integer>();
