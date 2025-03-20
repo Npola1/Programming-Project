@@ -52,16 +52,16 @@ void draw() {
   // Draw the appropriate screen based on currentScreen value
   switch(currentScreen) {
     case 0:
-      drawMainMenu();
+      drawMainMenu(); //Main Screen
       break;
     case 1:
-      drawAirportView();
+      drawAirportView(); //Aiirport Menu
       break;
     case 2:
-      drawDateRangeView();
+      drawDateRangeView(); // Range of Dates
       break;
     case 3:
-      drawLatenessView();
+      drawLatenessView(); // Late Flights
       break;
   }
   
