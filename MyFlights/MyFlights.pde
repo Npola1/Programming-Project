@@ -192,7 +192,7 @@ void drawNavigationBar() {
   
   // Draw pagination controls if applicable
   if (filteredFlights.size() > recordsPerPage) {
-    drawButton("Previous", width - 350, height - 40, 100, 30, false);      # aligned correctly by Yanko
+    drawButton("Previous", width - 350, height - 40, 100, 30, false);      // aligned correctly by Yanko
     drawButton("Next", width - 150, height - 40, 100, 30, false);
     fill(255);
     textAlign(CENTER);
