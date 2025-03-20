@@ -25,7 +25,7 @@ final int SCREEN_WIDTH = 1200;
 final int SCREEN_HEIGHT = 800;
 
 void setup() {
-  size(1200, 800);
+  size(1600, 800);
   titleFont = createFont("Arial Bold", 24);
   regularFont = createFont("Arial", 14);
   
