@@ -44,6 +44,8 @@ void setup() {
   filteredFlights = new ArrayList<Flight>(flights);
 }
 
+
+
 void draw() {
   background(240);
   
@@ -66,6 +68,9 @@ void draw() {
   // Draw navigation bar
   drawNavigationBar();
 }
+
+
+
 
 void drawMainMenu() {
    if (mainMenuBackground != null) {
@@ -90,6 +95,10 @@ void drawMainMenu() {
   // Draw a sample visualization of all data
   drawSummaryVisualization();
 }
+
+
+
+
 
 void drawAirportView() {
   textFont(titleFont);
@@ -120,6 +129,10 @@ void drawAirportView() {
     drawAirportStats(selectedAirport);
   }
 }
+
+
+
+
 
 void drawDateRangeView() {
   textFont(titleFont);
