@@ -265,7 +265,6 @@ void drawFlightTable(float x, float y, float w, float h) {
     }
   }
 }
-
 void drawSummaryVisualization() {
   // Draw a simple summary visualization at the bottom of the main screen
   fill(255);
@@ -316,14 +315,13 @@ void drawSummaryVisualization() {
     text(count, 100 + i * barWidth + barWidth/2, 700 - barHeight - 10);
   }
 }
-
 void drawAirportStats(String airport) {
   // Count flights to/from the selected airport
   int departingFlights = 0;
   int arrivingFlights = 0;
   int cancelledFlights = 0;
   int divertedFlights = 0;
-  
+
   for (Flight flight : flights) {
     if (flight.origin.equals(airport)) {
       departingFlights++;
@@ -334,52 +332,64 @@ void drawAirportStats(String airport) {
       arrivingFlights++;
     }
   }
-  
-  // Draw stats
+
+  // Draw stats box
   fill(255);
-  rect(20, 400, 300, 200);
-  
+  rect(20, 400, 300, 320); // Increased height for spacing 
+
   fill(50);
   textAlign(CENTER);
   text("Airport Statistics: " + airport, 170, 420);
-  
+
   textAlign(LEFT);
   fill(0);
   text("Departing Flights: " + departingFlights, 30, 450);
   text("Arriving Flights: " + arrivingFlights, 30, 480);
   text("Cancelled Flights: " + cancelledFlights, 30, 510);
   text("Diverted Flights: " + divertedFlights, 30, 540);
-  
+
+  // Prevent division by zero
+  if (departingFlights == 0) {
+    text("No departing flights to show pie chart", 30, 570);
+    return;
+  }
+
   // Draw a pie chart of flight statuses
   float total = departingFlights;
   float cancelledPercentage = cancelledFlights / total;
   float divertedPercentage = divertedFlights / total;
   float normalPercentage = 1 - cancelledPercentage - divertedPercentage;
-  
+
+  int pieX = 170, pieY = 620, pieSize = 100; // Adjusted Y position
+
   fill(0, 128, 0); // Green for normal flights
-  arc(170, 600, 100, 100, 0, normalPercentage * TWO_PI);
-  
+  arc(pieX, pieY, pieSize, pieSize, 0, normalPercentage * TWO_PI);
+
   fill(255, 0, 0); // Red for cancelled
-  arc(170, 600, 100, 100, normalPercentage * TWO_PI, 
+  arc(pieX, pieY, pieSize, pieSize, normalPercentage * TWO_PI, 
       (normalPercentage + cancelledPercentage) * TWO_PI);
-  
+
   fill(255, 165, 0); // Orange for diverted
-  arc(170, 600, 100, 100, (normalPercentage + cancelledPercentage) * TWO_PI, TWO_PI);
-  
-  // Legend
+  arc(pieX, pieY, pieSize, pieSize, (normalPercentage + cancelledPercentage) * TWO_PI, TWO_PI);
+
+  // Adjusted Legend Positioning a bit up from the bottom
+  int legendX = 20, legendY = height - 130; // Move legend 30 pixels up from the bottom
+
   fill(0, 128, 0);
-  rect(30, 560, 15, 15);
+  rect(legendX, legendY, 15, 15);
   fill(255, 0, 0);
-  rect(30, 580, 15, 15);
+  rect(legendX, legendY + 20, 15, 15);
   fill(255, 165, 0);
-  rect(30, 600, 15, 15);
-  
+  rect(legendX, legendY + 40, 15, 15);
+
   fill(0);
   textAlign(LEFT);
-  text("Normal: " + (int)(normalPercentage * 100) + "%", 50, 570);
-  text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", 50, 590);
-  text("Diverted: " + (int)(divertedPercentage * 100) + "%", 50, 610);
+  text("Normal: " + (int)(normalPercentage * 100) + "%", legendX + 20, legendY + 10);
+  text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", legendX + 20, legendY + 30);
+  text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 20, legendY + 50);
 }
+
+
 
 void drawDateRangeVisualization() {
   // Draw a line chart of flights per day
@@ -804,4 +814,4 @@ class Airport {
   String city;
   String state;
   int wac;
-}
+} 
