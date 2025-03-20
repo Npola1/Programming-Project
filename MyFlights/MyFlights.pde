@@ -192,7 +192,7 @@ void drawNavigationBar() {
   
   // Draw pagination controls if applicable
   if (filteredFlights.size() > recordsPerPage) {
-    drawButton("Previous", width - 300, height - 40, 100, 30, false);
+    drawButton("Previous", width - 400, height - 40, 100, 30, false);
     drawButton("Next", width - 150, height - 40, 100, 30, false);
     fill(255);
     textAlign(CENTER);
