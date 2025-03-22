@@ -26,7 +26,7 @@ final int SCREEN_WIDTH = 1200;
 final int SCREEN_HEIGHT = 800;
 
 void setup() {
-  size(1600, 1000);
+  size(1600, 800);
   titleFont = createFont("Arial Bold", 24);
   regularFont = createFont("Arial", 14);
   
@@ -193,7 +193,7 @@ void drawNavigationBar() {
   
   // Draw pagination controls if applicable
   if (filteredFlights.size() > recordsPerPage) {
-    drawButton("Previous", width - 350, height - 40, 100, 30, false);      // aligned correctly by Yanko
+    drawButton("Previous", width - 350, height - 40, 100, 30, false);
     drawButton("Next", width - 150, height - 40, 100, 30, false);
     fill(255);
     textAlign(CENTER);
@@ -618,7 +618,7 @@ void mousePressed() {
     }
   }
 }
-
+   // COMMON PARTS
 void keyPressed() {
   // Handle keyboard input for search and date inputs
   if (currentScreen == 1) {
