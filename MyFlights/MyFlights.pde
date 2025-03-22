@@ -8,7 +8,7 @@ import java.util.*;
 ArrayList<Flight> flights;
 ArrayList<Flight> filteredFlights;
 HashMap<String, Airport> airports;
-//Hello 
+
 // UI variables
 int currentScreen = 0; // 0: main menu, 1: airport view, 2: date range view, 3: lateness view
 int startIndex = 0;
@@ -20,6 +20,7 @@ PFont titleFont, regularFont;
 boolean showFilters = false;
 String searchQuery = "";
 PImage mainMenuBackground;
+PImage otherScreensBackground;
 
 // Screen dimensions
 final int SCREEN_WIDTH = 1200;
@@ -29,27 +30,42 @@ void setup() {
   size(1600, 1000);
   titleFont = createFont("Arial Bold", 24);
   regularFont = createFont("Arial", 14);
-  
+
   // TURKISH AIRLINES
-    mainMenuBackground = loadImage("background.png");
-    
+  mainMenuBackground = loadImage("background.png");
+  // EMIRATES AIRLINES
+  otherScreensBackground = loadImage("Background2.png");
+
   // Initialize data structures
   flights = new ArrayList<Flight>();
   filteredFlights = new ArrayList<Flight>();
   airports = new HashMap<String, Airport>();
-  
+
   // Load data
   loadFlightData("flights10k.csv");
-  
+
   // Initially, filtered flights is the same as all flights
   filteredFlights = new ArrayList<Flight>(flights);
 }
 
-
-
 void draw() {
-  background(240);
+  // Draw the appropriate background based on currentScreen value
+  if (currentScreen == 0) {
+    if (mainMenuBackground != null) {
+      image(mainMenuBackground, 0, 0, width, height);
+    } else {
+      background(240);
+    }
+    // Draw the other background for all other pages based on screenvalue
+  } else {
+    if (otherScreensBackground != null) {
+      image(otherScreensBackground, 0, 0, width, height);
+    } else {
+      background(240);
+    }
+  }
   
+  // Switch cases for drawing
   // Draw the appropriate screen based on currentScreen value
   switch(currentScreen) {
     case 0:
@@ -64,17 +80,17 @@ void draw() {
     case 3:
       drawLatenessView();
       break;
+    default:
+      // Handle any other screens if necessary
+      break;
   }
-  
+
   // Draw navigation bar
   drawNavigationBar();
 }
 
-
-
-
 void drawMainMenu() {
-   if (mainMenuBackground != null) {
+  if (mainMenuBackground != null) {
     image(mainMenuBackground, 0, 0, width, height);
   } else {
     // Fallback if image not found
@@ -85,37 +101,33 @@ void drawMainMenu() {
   fill(50);
   textAlign(CENTER);
   text("Flight Data Visualization", width/2, 80);
-  
+
   textFont(regularFont);
-  
+
   // Draw option buttons
   drawButton("View Flights by Airport", width/2 - 150, 200, 300, 60, currentScreen == 1);
   drawButton("View Flights by Date Range", width/2 - 150, 280, 300, 60, currentScreen == 2);
   drawButton("View Flights Sorted by Lateness", width/2 - 150, 360, 300, 60, currentScreen == 3);
-  
+
   // Draw a sample visualization of all data
   drawSummaryVisualization();
 }
-
-
-
-
 
 void drawAirportView() {
   textFont(titleFont);
   fill(50);
   textAlign(CENTER);
   text("Flights by Airport", width/2, 80);
-  
+
   textFont(regularFont);
   textAlign(LEFT);
-  
+
   // Draw airport filter
   fill(255);
   rect(20, 100, 300, 40);
   fill(0);
   text("Search Airport: " + searchQuery, 30, 125);
-  
+
   // Draw airport list based on search
   ArrayList<String> matchingAirports = findMatchingAirports(searchQuery);
   for (int i = 0; i < min(10, matchingAirports.size()); i++) {
@@ -123,7 +135,7 @@ void drawAirportView() {
     boolean isSelected = airport.equals(selectedAirport);
     drawButton(airport, 20, 150 + i * 30, 300, 25, isSelected);
   }
-  
+
   // Draw flight data if an airport is selected
   if (!selectedAirport.isEmpty()) {
     drawFlightTable(350, 100, width - 380, height - 150);
@@ -131,19 +143,16 @@ void drawAirportView() {
   }
 }
 
-
-
 // PRAD
-
 void drawDateRangeView() {
   textFont(titleFont);
   fill(50);
   textAlign(CENTER);
   text("Flights by Date Range", width/2, 80);
-  
+
   textFont(regularFont);
   textAlign(LEFT);
-  
+
   // Draw date range selector
   fill(255);
   rect(20, 100, 150, 40);
@@ -151,13 +160,13 @@ void drawDateRangeView() {
   fill(0);
   text("Start Date: " + startDate, 30, 125);
   text("End Date: " + endDate, 210, 125);
-  
+
   // Apply filter button
   drawButton("Apply Filter", 20, 160, 150, 40, false);
-  
+
   // Draw flight data
   drawFlightTable(20, 220, width - 40, height - 270);
-  
+
   // Draw date range visualization
   drawDateRangeVisualization();
 }
@@ -167,13 +176,13 @@ void drawLatenessView() {
   fill(50);
   textAlign(CENTER);
   text("Flights by Lateness", width/2, 80);
-  
+
   textFont(regularFont);
   textAlign(LEFT);
-  
+
   // Draw lateness visualization
   drawLatenessVisualization();
-  
+
   // Draw flight data
   drawFlightTable(20, 350, width - 40, height - 400);
 }
@@ -184,20 +193,20 @@ void drawNavigationBar() {
   fill(255);
   textAlign(CENTER);
   textFont(regularFont);
-  
+
   // Draw navigation buttons
   drawButton("Main Menu", 100, height - 40, 150, 30, currentScreen == 0);
   drawButton("Airport View", 300, height - 40, 150, 30, currentScreen == 1);
   drawButton("Date Range", 500, height - 40, 150, 30, currentScreen == 2);
   drawButton("Lateness", 700, height - 40, 150, 30, currentScreen == 3);
-  
+
   // Draw pagination controls if applicable
   if (filteredFlights.size() > recordsPerPage) {
     drawButton("Previous", width - 350, height - 40, 100, 30, false);      // aligned correctly by Yanko
     drawButton("Next", width - 150, height - 40, 100, 30, false);
     fill(255);
     textAlign(CENTER);
-    text("Page " + (startIndex / recordsPerPage + 1) + " of " + 
+    text("Page " + (startIndex / recordsPerPage + 1) + " of " +
          (int)Math.ceil(filteredFlights.size() / (float)recordsPerPage), width - 200, height - 25);
   }
 }
@@ -211,18 +220,16 @@ void drawButton(String label, float x, float y, float w, float h, boolean select
     fill(180);
   }
   rect(x, y, w, h, 5);
-  
+
   fill(0);
   textAlign(CENTER, CENTER);
   text(label, x + w/2, y + h/2);
 }
 
-
-
 void drawFlightTable(float x, float y, float w, float h) {
   fill(255);
   rect(x, y, w, h);
-  
+
   // Draw table headers
   fill(50);
   rect(x, y, w, 30);
@@ -237,14 +244,14 @@ void drawFlightTable(float x, float y, float w, float h) {
   text("Scheduled Arr", x + 570, y + 15);
   text("Actual Arr", x + 670, y + 15);
   text("Status", x + 770, y + 15);
-  
+
   // Draw rows
   fill(0);
   int endIndex = min(startIndex + recordsPerPage, filteredFlights.size());
   for (int i = startIndex; i < endIndex; i++) {
     Flight flight = filteredFlights.get(i);
     float rowY = y + 30 + (i - startIndex) * 30;
-    
+
     // Alternate row colors
     if ((i - startIndex) % 2 == 0) {
       fill(240);
@@ -252,7 +259,7 @@ void drawFlightTable(float x, float y, float w, float h) {
       fill(220);
     }
     rect(x, rowY, w, 30);
-    
+
     fill(0);
     textAlign(LEFT, CENTER);
     text(formatDate(flight.flightDate), x + 10, rowY + 15);
@@ -263,7 +270,7 @@ void drawFlightTable(float x, float y, float w, float h) {
     text(formatTime(flight.actualDeparture), x + 470, rowY + 15);
     text(formatTime(flight.scheduledArrival), x + 570, rowY + 15);
     text(formatTime(flight.actualArrival), x + 670, rowY + 15);
-    
+
     // Status (cancelled, diverted, on time, delayed)
     if (flight.cancelled == 1) {
       fill(255, 0, 0);
@@ -287,7 +294,7 @@ void drawSummaryVisualization() {
   // Draw a simple summary visualization at the bottom of the main screen
   fill(255);
   rect(50, 450, width - 100, 300);
-  
+
   // Count flights per airline
   HashMap<String, Integer> airlineCounts = new HashMap<String, Integer>();
   for (Flight flight : flights) {
@@ -297,7 +304,7 @@ void drawSummaryVisualization() {
       airlineCounts.put(flight.airline, 1);
     }
   }
-  
+
   // Draw a bar chart of top airlines
   ArrayList<Map.Entry<String, Integer>> sortedAirlines = new ArrayList<Map.Entry<String, Integer>>(airlineCounts.entrySet());
   Collections.sort(sortedAirlines, new Comparator<Map.Entry<String, Integer>>() {
@@ -305,36 +312,36 @@ void drawSummaryVisualization() {
       return b.getValue().compareTo(a.getValue());
     }
   });
-  
+
   fill(50);
   textAlign(CENTER);
   text("Top Airlines by Number of Flights", width/2, 470);
-  
+
   int maxCount = 0;
   for (int i = 0; i < min(10, sortedAirlines.size()); i++) {
     if (sortedAirlines.get(i).getValue() > maxCount) {
       maxCount = sortedAirlines.get(i).getValue();
     }
   }
-  
+
   // Draw bars
   for (int i = 0; i < min(10, sortedAirlines.size()); i++) {
     String airline = sortedAirlines.get(i).getKey();
     int count = sortedAirlines.get(i).getValue();
     float barHeight = (count / (float)maxCount) * 200;
     float barWidth = (width - 200) / min(10, sortedAirlines.size());
-    
+
     fill(100, 150, 230);
     rect(100 + i * barWidth, 700 - barHeight, barWidth - 10, barHeight);
-    
+
     fill(0);
     textAlign(CENTER);
     text(airline, 100 + i * barWidth + barWidth/2, 720);
     text(count, 100 + i * barWidth + barWidth/2, 700 - barHeight - 10);
   }
 }
-  // SUMAMA
 
+// SUMAMA
 void drawAirportStats(String airport) {
   // Count flights to/from the selected airport
   int departingFlights = 0;
@@ -355,7 +362,7 @@ void drawAirportStats(String airport) {
 
   // Draw stats box
   fill(255);
-  rect(20, 400, 300, 320); // Increased height for spacing 
+  rect(20, 400, 300, 320); // Increased height for spacing
 
   fill(50);
   textAlign(CENTER);
@@ -386,7 +393,7 @@ void drawAirportStats(String airport) {
   arc(pieX, pieY, pieSize, pieSize, 0, normalPercentage * TWO_PI);
 
   fill(255, 0, 0); // Red for cancelled
-  arc(pieX, pieY, pieSize, pieSize, normalPercentage * TWO_PI, 
+  arc(pieX, pieY, pieSize, pieSize, normalPercentage * TWO_PI,
       (normalPercentage + cancelledPercentage) * TWO_PI);
 
   fill(255, 165, 0); // Orange for diverted
@@ -409,12 +416,11 @@ void drawAirportStats(String airport) {
   text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 20, legendY + 50);
 }
 
-
-    // YUSUF 
+// YUSUF
 void drawDateRangeVisualization() {
   // Draw a line chart of flights per day
   HashMap<String, Integer> flightsPerDay = new HashMap<String, Integer>();
-  
+
   for (Flight flight : filteredFlights) {
     String date = flight.flightDate;
     if (flightsPerDay.containsKey(date)) {
@@ -423,11 +429,11 @@ void drawDateRangeVisualization() {
       flightsPerDay.put(date, 1);
     }
   }
-  
+
   // Sort dates
   ArrayList<String> dates = new ArrayList<String>(flightsPerDay.keySet());
   Collections.sort(dates);
-  
+
   // Find max value
   int maxFlights = 0;
   for (Integer count : flightsPerDay.values()) {
@@ -435,39 +441,39 @@ void drawDateRangeVisualization() {
       maxFlights = count;
     }
   }
-  
+
   // Draw chart
   fill(255);
   rect(400, 100, width - 420, 100);
-  
+
   fill(50);
   textAlign(CENTER);
   text("Flights per Day", width/2, 120);
-  
+
   // Draw lines
   stroke(100, 150, 230);
   strokeWeight(2);
-  
+
   float xStep = (width - 440) / (float)(dates.size() - 1);
   for (int i = 0; i < dates.size() - 1; i++) {
     float x1 = 410 + i * xStep;
     float y1 = 190 - (flightsPerDay.get(dates.get(i)) / (float)maxFlights) * 60;
     float x2 = 410 + (i + 1) * xStep;
     float y2 = 190 - (flightsPerDay.get(dates.get(i + 1)) / (float)maxFlights) * 60;
-    
+
     line(x1, y1, x2, y2);
-    
+
     // Draw points
     fill(100, 150, 230);
     ellipse(x1, y1, 5, 5);
   }
-  
+
   // Draw last point
   fill(100, 150, 230);
-  ellipse(410 + (dates.size() - 1) * xStep, 
-          190 - (flightsPerDay.get(dates.get(dates.size() - 1)) / (float)maxFlights) * 60, 
+  ellipse(410 + (dates.size() - 1) * xStep,
+          190 - (flightsPerDay.get(dates.get(dates.size() - 1)) / (float)maxFlights) * 60,
           5, 5);
-  
+
   strokeWeight(1);
   stroke(0);
 }
@@ -476,12 +482,12 @@ void drawLatenessVisualization() {
   // Calculate average delay by airline
   HashMap<String, Integer> totalDelayByAirline = new HashMap<String, Integer>();
   HashMap<String, Integer> flightCountByAirline = new HashMap<String, Integer>();
-  
+
   for (Flight flight : flights) {
-    if (flight.cancelled == 0 && flight.diverted == 0 && 
+    if (flight.cancelled == 0 && flight.diverted == 0 &&
         flight.actualDeparture > 0 && flight.scheduledDeparture > 0) {
       int delay = calculateDelayMinutes(flight.scheduledDeparture, flight.actualDeparture);
-      
+
       if (totalDelayByAirline.containsKey(flight.airline)) {
         totalDelayByAirline.put(flight.airline, totalDelayByAirline.get(flight.airline) + delay);
         flightCountByAirline.put(flight.airline, flightCountByAirline.get(flight.airline) + 1);
@@ -491,43 +497,43 @@ void drawLatenessVisualization() {
       }
     }
   }
-  
+
   // Calculate average delay
   HashMap<String, Float> avgDelayByAirline = new HashMap<String, Float>();
   for (String airline : totalDelayByAirline.keySet()) {
-    avgDelayByAirline.put(airline, 
+    avgDelayByAirline.put(airline,
                           totalDelayByAirline.get(airline) / (float)flightCountByAirline.get(airline));
   }
-  
+
   // Sort airlines by average delay
-  ArrayList<Map.Entry<String, Float>> sortedAirlines = 
+  ArrayList<Map.Entry<String, Float>> sortedAirlines =
     new ArrayList<Map.Entry<String, Float>>(avgDelayByAirline.entrySet());
   Collections.sort(sortedAirlines, new Comparator<Map.Entry<String, Float>>() {
     public int compare(Map.Entry<String, Float> a, Map.Entry<String, Float> b) {
       return b.getValue().compareTo(a.getValue());
     }
   });
-  
+
   // Draw horizontal bar chart
   fill(255);
   rect(20, 100, width - 40, 230);
-  
+
   fill(50);
   textAlign(CENTER);
   text("Average Delay by Airline (minutes)", width/2, 120);
-  
+
   // Draw bars
   textAlign(RIGHT);
   for (int i = 0; i < min(10, sortedAirlines.size()); i++) {
     String airline = sortedAirlines.get(i).getKey();
     float avgDelay = sortedAirlines.get(i).getValue();
-    
+
     fill(0);
     text(airline, 100, 150 + i * 18);
-    
+
     fill(255, 100, 100);
     rect(110, 142 + i * 18, min(avgDelay * 5, width - 160), 12);
-    
+
     fill(0);
     textAlign(LEFT);
     text(nf(avgDelay, 0, 1) + " min", 115 + min(avgDelay * 5, width - 160), 150 + i * 18);
@@ -558,12 +564,12 @@ void mousePressed() {
       }
     }
   }
-  
+
   // Airport view - airport selection
   if (currentScreen == 1) {
     ArrayList<String> matchingAirports = findMatchingAirports(searchQuery);
     for (int i = 0; i < min(10, matchingAirports.size()); i++) {
-      if (mouseX >= 20 && mouseX <= 320 && 
+      if (mouseX >= 20 && mouseX <= 320 &&
           mouseY >= 150 + i * 30 && mouseY <= 175 + i * 30) {
         selectedAirport = matchingAirports.get(i);
         filterFlightsByAirport(selectedAirport);
@@ -571,7 +577,7 @@ void mousePressed() {
       }
     }
   }
-  
+
   // Date range view - apply filter button
   if (currentScreen == 2) {
     if (mouseX >= 20 && mouseX <= 170 && mouseY >= 160 && mouseY <= 200) {
@@ -579,7 +585,7 @@ void mousePressed() {
       return;
     }
   }
-  
+
   // Navigation bar
   if (mouseY >= height - 50) {
     if (mouseX >= 100 && mouseX <= 250) {
@@ -603,7 +609,7 @@ void mousePressed() {
       });
       return;
     }
-    
+
     // Pagination controls
     if (filteredFlights.size() > recordsPerPage) {
       if (mouseX >= width - 300 && mouseX <= width - 200 && mouseY >= height - 40 && mouseY <= height - 10) {
@@ -678,14 +684,14 @@ void filterFlightsByAirport(String airport) {
 
 void filterFlightsByDateRange(String start, String end) {
   if (start.isEmpty() || end.isEmpty()) return;
-  
+
   // Convert to date format
   String startFormatted = formatInputDate(start);
   String endFormatted = formatInputDate(end);
-  
+
   filteredFlights = new ArrayList<Flight>();
   for (Flight flight : flights) {
-    if (flight.flightDate.compareTo(startFormatted) >= 0 && 
+    if (flight.flightDate.compareTo(startFormatted) >= 0 &&
         flight.flightDate.compareTo(endFormatted) <= 0) {
       filteredFlights.add(flight);
     }
@@ -706,15 +712,15 @@ String formatInputDate(String input) {
 void loadFlightData(String filename) {
   println("Loading flight data from " + filename);
   String[] lines = loadStrings(filename);
-  
+
   // Skip header
   for (int i = 1; i < lines.length; i++) {
     String[] data = lines[i].split(",");
-    
+
     // Make sure we have enough data
     if (data.length >= 17) {
       Flight flight = new Flight();
-      
+
       // Parse flight data
       flight.flightDate = data[0];
       flight.airline = data[1];
@@ -733,13 +739,13 @@ void loadFlightData(String filename) {
       flight.actualArrival = parseInt(data[14]);
       flight.cancelled = parseInt(data[15]);
       flight.diverted = parseInt(data[16]);
-      
+
       if (data.length > 17) {
         flight.distance = parseFloat(data[17]);
       }
-      
+
       flights.add(flight);
-      
+
       // Add origin and destination to airports
       if (!airports.containsKey(flight.origin)) {
         Airport airport = new Airport();
@@ -749,15 +755,14 @@ void loadFlightData(String filename) {
         airport.wac = flight.originWac;
         airports.put(flight.origin, airport);
       }
-      
+
       if (!airports.containsKey(flight.destination)) {
         Airport airport = new Airport();
         airport.code = flight.destination;
         airport.city = flight.destinationCity;
         airport.state = flight.destinationState;
         airport.wac = flight.destinationWac;
-        airports.put(flight.destination,
-airport);
+        airports.put(flight.destination, airport);
       }
     }
   }
@@ -777,7 +782,7 @@ String formatDate(String date) {
 
 String formatTime(int time) {
   if (time <= 0) return "-";
-  
+
   // Convert from HHMM to HH:MM
   String timeStr = String.format("%04d", time);
   return timeStr.substring(0, 2) + ":" + timeStr.substring(2, 4);
@@ -785,24 +790,24 @@ String formatTime(int time) {
 
 int calculateDelayMinutes(int scheduled, int actual) {
   if (scheduled <= 0 || actual <= 0) return 0;
-  
+
   int scheduledHour = scheduled / 100;
   int scheduledMinute = scheduled % 100;
   int actualHour = actual / 100;
   int actualMinute = actual % 100;
-  
+
   int scheduledTotalMinutes = scheduledHour * 60 + scheduledMinute;
   int actualTotalMinutes = actualHour * 60 + actualMinute;
-  
+
   int diff = actualTotalMinutes - scheduledTotalMinutes;
-  
+
   // Handle overnight flights
   if (diff < -720) {  // More than 12 hours negative
     diff += 1440;     // Add 24 hours
   } else if (diff > 720) {  // More than 12 hours positive
     diff -= 1440;     // Subtract 24 hours
   }
-  
+
   return max(diff, 0);  // Only return positive delays
 }
 
@@ -834,4 +839,4 @@ class Airport {
   String city;
   String state;
   int wac;
-} 
+}
