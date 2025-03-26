@@ -3,14 +3,13 @@ import java.util.*;
 // Flight Data Visualization System
 // Created for CSU11013 Programming Project 2025
 
-// RORY
 // Data structures
 ArrayList<Flight> flights;
 ArrayList<Flight> filteredFlights;
 HashMap<String, Airport> airports;
 
 // UI variables
-int currentScreen = 0; // 0: main menu, 1: airport view, 2: date range view, 3: lateness view
+int currentScreen = 0; // 0: main menu, 1: airport view, 2: date range view, 3: lateness view, 4: compare view
 int startIndex = 0;
 int recordsPerPage = 15;
 String selectedAirport = "";
@@ -31,9 +30,7 @@ void setup() {
   titleFont = createFont("Arial Bold", 24);
   regularFont = createFont("Arial", 14);
 
-  // TURKISH AIRLINES
   mainMenuBackground = loadImage("background.png");
-  // EMIRATES AIRLINES
   otherScreensBackground = loadImage("Background2.png");
 
   // Initialize data structures
@@ -56,7 +53,6 @@ void draw() {
     } else {
       background(240);
     }
-    // Draw the other background for all other pages based on screenvalue
   } else {
     if (otherScreensBackground != null) {
       image(otherScreensBackground, 0, 0, width, height);
@@ -66,7 +62,6 @@ void draw() {
   }
   
   // Switch cases for drawing
-  // Draw the appropriate screen based on currentScreen value
   switch(currentScreen) {
     case 0:
       drawMainMenu();
@@ -80,8 +75,9 @@ void draw() {
     case 3:
       drawLatenessView();
       break;
+    case 4:
+      drawCompare();
     default:
-      // Handle any other screens if necessary
       break;
   }
 
@@ -93,25 +89,43 @@ void drawMainMenu() {
   if (mainMenuBackground != null) {
     image(mainMenuBackground, 0, 0, width, height);
   } else {
-    // Fallback if image not found
     background(240);
   }
-  //Hello
+
   textFont(titleFont);
   fill(50);
   textAlign(CENTER);
-  text("Flight Data Visualization", width/2, 80);
+  text("Flight Data Visualization", width / 2, 80);
 
   textFont(regularFont);
 
   // Draw option buttons
-  drawButton("View Flights by Airport", width/2 - 150, 200, 300, 60, currentScreen == 1);
-  drawButton("View Flights by Date Range", width/2 - 150, 280, 300, 60, currentScreen == 2);
-  drawButton("View Flights Sorted by Lateness", width/2 - 150, 360, 300, 60, currentScreen == 3);
+  drawButton("Compare by Flights/Airports", width / 2 - 150, 120, 300, 60, currentScreen == 4);
+  drawButton("View Flights by Airport", width / 2 - 150, 200, 300, 60, currentScreen == 1);
+  drawButton("View Flights by Date Range", width / 2 - 150, 280, 300, 60, currentScreen == 2);
+  drawButton("View Flights Sorted by Lateness", width / 2 - 150, 360, 300, 60, currentScreen == 3);
 
   // Draw a sample visualization of all data
   drawSummaryVisualization();
 }
+
+void drawCompare() {
+  textFont(titleFont);
+  fill(50);
+  textAlign(CENTER);
+  text("Compare by Airports/Flights", width / 2, 80);
+
+  textFont(regularFont);
+  textAlign(LEFT);
+
+  fill(255);
+  // Draw "Compare by Flights" button
+  drawButton("Compare by Flights", width / 2 - 150, 120, 300, 60, currentScreen == 4);
+
+  // Draw "Compare by Airport" button
+  drawButton("Compare by Airport", width / 2 - 150, 200, 300, 60, currentScreen == 4);
+}
+
 
 void drawAirportView() {
   textFont(titleFont);
@@ -199,6 +213,7 @@ void drawNavigationBar() {
   drawButton("Airport View", 300, height - 40, 150, 30, currentScreen == 1);
   drawButton("Date Range", 500, height - 40, 150, 30, currentScreen == 2);
   drawButton("Lateness", 700, height - 40, 150, 30, currentScreen == 3);
+  drawButton("Compare", 900, height - 40, 150, 30, currentScreen == 4);
 
   // Draw pagination controls if applicable
   if (filteredFlights.size() > recordsPerPage) {
@@ -544,7 +559,10 @@ void mousePressed() {
   // Main menu buttons
   if (currentScreen == 0) {
     if (mouseX >= width/2 - 150 && mouseX <= width/2 + 150) {
-      if (mouseY >= 200 && mouseY <= 260) {
+      if (mouseY >= 120 && mouseY <= 180) { 
+        currentScreen = 4; // Compare view
+        return;
+      } else if (mouseY >= 200 && mouseY <= 260) {
         currentScreen = 1; // Airport view
         return;
       } else if (mouseY >= 280 && mouseY <= 340) {
@@ -552,14 +570,6 @@ void mousePressed() {
         return;
       } else if (mouseY >= 360 && mouseY <= 420) {
         currentScreen = 3; // Lateness view
-        // Sort flights by lateness
-        Collections.sort(filteredFlights, new Comparator<Flight>() {
-          public int compare(Flight a, Flight b) {
-            int delayA = calculateDelayMinutes(a.scheduledDeparture, a.actualDeparture);
-            int delayB = calculateDelayMinutes(b.scheduledDeparture, b.actualDeparture);
-            return delayB - delayA;
-          }
-        });
         return;
       }
     }
@@ -599,31 +609,33 @@ void mousePressed() {
       return;
     } else if (mouseX >= 700 && mouseX <= 850) {
       currentScreen = 3; // Lateness view
-      // Sort flights by lateness
-      Collections.sort(filteredFlights, new Comparator<Flight>() {
-        public int compare(Flight a, Flight b) {
-          int delayA = calculateDelayMinutes(a.scheduledDeparture, a.actualDeparture);
-          int delayB = calculateDelayMinutes(b.scheduledDeparture, b.actualDeparture);
-          return delayB - delayA;
-        }
-      });
+      return;
+    } else if (mouseX >= 900 && mouseX <= 1050) { 
+      currentScreen = 4; // Compare view
       return;
     }
+  }
 
-    // Pagination controls
-    if (filteredFlights.size() > recordsPerPage) {
-      if (mouseX >= width - 300 && mouseX <= width - 200 && mouseY >= height - 40 && mouseY <= height - 10) {
-        // Previous page
-        startIndex = max(0, startIndex - recordsPerPage);
-        return;
-      } else if (mouseX >= width - 150 && mouseX <= width - 50 && mouseY >= height - 40 && mouseY <= height - 10) {
-        // Next page
-        startIndex = min(filteredFlights.size() - recordsPerPage, startIndex + recordsPerPage);
-        return;
-      }
+  // Handle "Previous" in Compare View (Return to Main Menu)
+  if (currentScreen == 4) {
+    if (mouseX >= width - 300 && mouseX <= width - 200 && mouseY >= height - 40 && mouseY <= height - 10) {
+      currentScreen = 0; // Return to main menu
+      return;
+    }
+  }
+
+  // Pagination controls
+  if (filteredFlights.size() > recordsPerPage) {
+    if (mouseX >= width - 300 && mouseX <= width - 200 && mouseY >= height - 40 && mouseY <= height - 10) {
+      startIndex = max(0, startIndex - recordsPerPage);
+      return;
+    } else if (mouseX >= width - 150 && mouseX <= width - 50 && mouseY >= height - 40 && mouseY <= height - 10) {
+      startIndex = min(filteredFlights.size() - recordsPerPage, startIndex + recordsPerPage);
+      return;
     }
   }
 }
+
    // COMMON PARTS
 void keyPressed() {
   // Handle keyboard input for search and date inputs
