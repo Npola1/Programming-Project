@@ -709,6 +709,8 @@ String formatInputDate(String input) {
   return input;
 }
 
+
+// DANIEL
 void loadFlightData(String filename) {
   println("Loading flight data from " + filename);
   String[] lines = loadStrings(filename);
