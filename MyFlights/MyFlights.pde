@@ -404,7 +404,7 @@ void drawAirportStats(String airport) {
 
   int pieX = 170, pieY = 620, pieSize = 100; // Adjusted Y position
 
-  fill(0, 128, 0); // Green for normal flights
+  fill(0, 204, 102); // Cyan for normal flights
   arc(pieX, pieY, pieSize, pieSize, 0, normalPercentage * TWO_PI);
 
   fill(255, 0, 0); // Red for cancelled
@@ -417,7 +417,7 @@ void drawAirportStats(String airport) {
   // Adjusted Legend Positioning a bit up from the bottom
   int legendX = 20, legendY = height - 130; // Move legend 30 pixels up from the bottom
 
-  fill(0, 128, 0);
+  fill(0, 204, 102);
   rect(legendX, legendY, 15, 15);
   fill(255, 0, 0);
   rect(legendX, legendY + 20, 15, 15);
