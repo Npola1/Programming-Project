@@ -803,12 +803,12 @@ String formatTime(int time) {
 }
 
 int calculateDelayMinutes(int scheduled, int actual) {
-  if (scheduled <= 0 || actual <= 0) return 0;
+  if (scheduled <= 0 && actual <= 0) return 0;
 
-  int scheduledHour = scheduled / 100;
-  int scheduledMinute = scheduled % 100;
-  int actualHour = actual / 100;
-  int actualMinute = actual % 100;
+  int scheduledHour = scheduled / 60;
+  int scheduledMinute = scheduled % 60;
+  int actualHour = actual / 60;
+  int actualMinute = actual % 60;
 
   int scheduledTotalMinutes = scheduledHour * 60 + scheduledMinute;
   int actualTotalMinutes = actualHour * 60 + actualMinute;
