@@ -119,11 +119,6 @@ void drawCompare() {
   textAlign(LEFT);
 
   fill(255);
-  // Draw "Compare by Flights" button
-  drawButton("Compare by Flights", width / 2 - 150, 120, 300, 60, currentScreen == 4);
-
-  // Draw "Compare by Airport" button
-  drawButton("Compare by Airport", width / 2 - 150, 200, 300, 60, currentScreen == 4);
 }
 
 
@@ -363,12 +358,18 @@ void drawAirportStats(String airport) {
   int arrivingFlights = 0;
   int cancelledFlights = 0;
   int divertedFlights = 0;
+  int delayedFlights = 0;
 
   for (Flight flight : flights) {
     if (flight.origin.equals(airport)) {
       departingFlights++;
-      if (flight.cancelled == 1) cancelledFlights++;
-      if (flight.diverted == 1) divertedFlights++;
+      if (flight.cancelled == 1) {
+        cancelledFlights++;
+      } else if (flight.diverted == 1) {
+        divertedFlights++;
+      } else if (flight.actualDeparture > flight.scheduledDeparture) {
+        delayedFlights++;
+      }
     }
     if (flight.destination.equals(airport)) {
       arrivingFlights++;
@@ -377,7 +378,7 @@ void drawAirportStats(String airport) {
 
   // Draw stats box
   fill(255);
-  rect(20, 400, 300, 320); // Increased height for spacing
+  rect(20, 400, 300, 400); // Increased height for spacing
 
   fill(50);
   textAlign(CENTER);
@@ -389,46 +390,65 @@ void drawAirportStats(String airport) {
   text("Arriving Flights: " + arrivingFlights, 30, 480);
   text("Cancelled Flights: " + cancelledFlights, 30, 510);
   text("Diverted Flights: " + divertedFlights, 30, 540);
+  text("Delayed Flights: " + delayedFlights, 30, 570);
 
   // Prevent division by zero
   if (departingFlights == 0) {
-    text("No departing flights to show pie chart", 30, 570);
+    text("No departing flights to show pie chart", 30, 600);
     return;
   }
 
   // Draw a pie chart of flight statuses
   float total = departingFlights;
-  float cancelledPercentage = cancelledFlights / total;
-  float divertedPercentage = divertedFlights / total;
-  float normalPercentage = 1 - cancelledPercentage - divertedPercentage;
+  float cancelledPercentage = (float)cancelledFlights / total;
+  float divertedPercentage = (float)divertedFlights / total;
+  float delayedPercentage = (float)delayedFlights / total;
+  float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
 
   int pieX = 170, pieY = 620, pieSize = 100; // Adjusted Y position
 
-  fill(0, 204, 102); // Cyan for normal flights
-  arc(pieX, pieY, pieSize, pieSize, 0, normalPercentage * TWO_PI);
+  // Draw pie chart sections
+  float startAngle = 0;
+  
+  // Normal flights - Cyan
+  fill(0, 204, 102);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + normalPercentage * TWO_PI);
+  startAngle += normalPercentage * TWO_PI;
 
-  fill(255, 0, 0); // Red for cancelled
-  arc(pieX, pieY, pieSize, pieSize, normalPercentage * TWO_PI,
-      (normalPercentage + cancelledPercentage) * TWO_PI);
+  // Cancelled flights - Red
+  fill(255, 0, 0);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + cancelledPercentage * TWO_PI);
+  startAngle += cancelledPercentage * TWO_PI;
 
-  fill(255, 165, 0); // Orange for diverted
-  arc(pieX, pieY, pieSize, pieSize, (normalPercentage + cancelledPercentage) * TWO_PI, TWO_PI);
+  // Diverted flights - Orange
+  fill(255, 165, 0);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + divertedPercentage * TWO_PI);
+  startAngle += divertedPercentage * TWO_PI;
 
-  // Adjusted Legend Positioning a bit up from the bottom
-  int legendX = 20, legendY = height - 130; // Move legend 30 pixels up from the bottom
+  // Delayed flights - Yellow
+  fill(255, 255, 0);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + delayedPercentage * TWO_PI);
 
+  // Adjusted Legend Positioning
+  int legendX = 20, legendY = height - 130;
+
+  // Draw legend rectangles
   fill(0, 204, 102);
   rect(legendX, legendY, 15, 15);
   fill(255, 0, 0);
   rect(legendX, legendY + 20, 15, 15);
   fill(255, 165, 0);
   rect(legendX, legendY + 40, 15, 15);
+  fill(255, 255, 0);
+  rect(legendX, legendY + 60, 15, 15);
 
+  // Draw legend text
   fill(0);
   textAlign(LEFT);
   text("Normal: " + (int)(normalPercentage * 100) + "%", legendX + 20, legendY + 10);
   text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", legendX + 20, legendY + 30);
   text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 20, legendY + 50);
+  text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendX + 20, legendY + 70);
 }
 
 // YUSUF
@@ -699,6 +719,7 @@ void filterFlightsByDateRange(String start, String end) {
 
   // Convert to date format
   String startFormatted = formatInputDate(start);
+ 
   String endFormatted = formatInputDate(end);
 
   filteredFlights = new ArrayList<Flight>();
