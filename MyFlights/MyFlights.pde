@@ -150,7 +150,7 @@ void drawCompareAirlines() {
   fill(0);
   text("Enter Airline 1: " + searchQuery, 30, 125);
 
-  // Airline 2 input box (moved further down to prevent overlap)
+  // Airline 2 input box
   fill(255);
   rect(20, 200, 300, 40);
   fill(0);
@@ -170,27 +170,160 @@ void drawCompareAirlines() {
     drawButton(airline, 20, 440 + i * 30, 300, 25, searchQuery2.equals(airline));
   }
 
-  // Draw two large boxes for graphs (moved down by 50px)
+  // Draw two large boxes for graphs
   stroke(150);
   strokeWeight(2);
-  
+
   // First box (left)
   fill(220);
   rect(350, 100, 500, 500);
   fill(0);
   textAlign(CENTER);
-  text("Graph 1: " + (searchQuery.isEmpty() ? "No Airline Selected" : searchQuery), 600, 100);
-  
+  text("Graph 1: " + (searchQuery.isEmpty() ? "No Airline Selected" : searchQuery), 600, 150);
+  drawPieChart(350, 300, searchQuery);
+
   // Second box (right)
   fill(220);
   rect(870, 100, 500, 500);
   fill(0);
   textAlign(CENTER);
-  text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airline Selected" : searchQuery2), 1120, 100);
+  text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airline Selected" : searchQuery2), 1120, 150);
+  drawPieChart(870, 300, searchQuery2);
+
+  // Draw comparison box
+  fill(255);
+  rect(350, 620, 1020, 150);
+  fill(0);
+  textAlign(CENTER);
+  text("Comparison", 870, 640);
+  drawComparison(searchQuery, searchQuery2);
 }
 
+void drawPieChart(float x, float y, String airline) {
+  if (airline.isEmpty()) return;
+
+  int totalFlights = 0;
+  int cancelledFlights = 0;
+  int divertedFlights = 0;
+  int delayedFlights = 0;
+
+  for (Flight flight : flights) {
+    if (flight.airline.equals(airline)) {
+      totalFlights++;
+      if (flight.cancelled == 1) {
+        cancelledFlights++;
+      } else if (flight.diverted == 1) {
+        divertedFlights++;
+      } else if (flight.actualDeparture > flight.scheduledDeparture) {
+        delayedFlights++;
+      }
+    }
+  }
+
+  if (totalFlights == 0) return;
+
+  float cancelledPercentage = (float)cancelledFlights / totalFlights;
+  float divertedPercentage = (float)divertedFlights / totalFlights;
+  float delayedPercentage = (float)delayedFlights / totalFlights;
+  float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
+
+  float pieSize = 300;
+  float pieX = x + pieSize / 2;
+  float pieY = y + pieSize / 2;
+
+  // Draw pie chart sections
+  float startAngle = 0;
+
+  // Normal flights - Green
+  fill(0, 204, 102);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + normalPercentage * TWO_PI);
+  startAngle += normalPercentage * TWO_PI;
+
+  // Cancelled flights - Red
+  fill(255, 0, 0);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + cancelledPercentage * TWO_PI);
+  startAngle += cancelledPercentage * TWO_PI;
+
+  // Diverted flights - Orange
+  fill(255, 165, 0);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + divertedPercentage * TWO_PI);
+  startAngle += divertedPercentage * TWO_PI;
+
+  // Delayed flights - Yellow
+  fill(255, 255, 0);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + delayedPercentage * TWO_PI);
+
+  // **Move Legend to the Right**
+  float legendX = x + pieSize + 50;  // Adjusted X position (to the right)
+  float legendY = y - 40;            // Align with pie chart
+
+  // Draw legend boxes
+  fill(0, 204, 102); rect(legendX, legendY, 20, 20); // Normal - Green
+  fill(255, 0, 0); rect(legendX, legendY + 30, 20, 20); // Cancelled - Red
+  fill(255, 165, 0); rect(legendX, legendY + 60, 20, 20); // Diverted - Orange
+  fill(255, 255, 0); rect(legendX, legendY + 90, 20, 20); // Delayed - Yellow
+
+  // Labels
+  fill(0);
+  textAlign(LEFT);
+  textSize(16);
+  text("Normal: " + (int)(normalPercentage * 100) + "%", legendX + 30, legendY + 15);
+  text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", legendX + 30, legendY + 45);
+  text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 30, legendY + 75);
+  text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendX + 30, legendY + 105);
+}
+
+
+void drawComparison(String airline1, String airline2) {
+  if (airline1.isEmpty() || airline2.isEmpty()) return;
+
+  int[] stats1 = getFlightStats(airline1);
+  int[] stats2 = getFlightStats(airline2);
+
+  float totalFlights1 = stats1[0];
+  float totalFlights2 = stats2[0];
+
+  float cancelledPercentage1 = stats1[1] / totalFlights1 * 100;
+  float divertedPercentage1 = stats1[2] / totalFlights1 * 100;
+  float delayedPercentage1 = stats1[3] / totalFlights1 * 100;
+
+  float cancelledPercentage2 = stats2[1] / totalFlights2 * 100;
+  float divertedPercentage2 = stats2[2] / totalFlights2 * 100;
+  float delayedPercentage2 = stats2[3] / totalFlights2 * 100;
+
+  fill(0);
+  textAlign(LEFT);
+  text("Cancelled Difference: " + nf(cancelledPercentage1 - cancelledPercentage2, 1, 1) + "%", 370, 670);
+  text("Diverted Difference: " + nf(divertedPercentage1 - divertedPercentage2, 1, 1) + "%", 370, 690);
+  text("Delayed Difference: " + nf(delayedPercentage1 - delayedPercentage2, 1, 1) + "%", 370, 710);
+}
+
+int[] getFlightStats(String airline) {
+  int totalFlights = 0;
+  int cancelledFlights = 0;
+  int divertedFlights = 0;
+  int delayedFlights = 0;
+
+  for (Flight flight : flights) {
+    if (flight.airline.equals(airline)) {
+      totalFlights++;
+      if (flight.cancelled == 1) {
+        cancelledFlights++;
+      } else if (flight.diverted == 1) {
+        divertedFlights++;
+      } else if (flight.actualDeparture > flight.scheduledDeparture) {
+        delayedFlights++;
+      }
+    }
+  }
+
+  return new int[]{totalFlights, cancelledFlights, divertedFlights, delayedFlights};
+}
+
+
 void drawCompareAirports(){
-  // Future code for compare by airports (if needed)
+  // Just copy paste the Compare Airline bit into chat gpt ask it to edit it. if youre too lazy or dont have time or you could manually do it. I leave it up to you guys
+  //ok
 }
 
 void drawAirportView() {
@@ -499,7 +632,6 @@ void drawAirportStats(String airport) {
   float divertedPercentage = (float)divertedFlights / total;
   float delayedPercentage = (float)delayedFlights / total;
   float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
-
   int pieX = 170, pieY = 620, pieSize = 100; // Adjusted Y position
 
   // Draw pie chart sections
