@@ -148,47 +148,46 @@ void drawCompareAirlines() {
   fill(255);
   rect(20, 100, 300, 40);
   fill(0);
-  text("Enter Airline 1: " + searchQuery, 30, 125); // Adjusted Y position for centering
+  text("Enter Airline 1: " + searchQuery, 30, 125);
 
   // Airline 2 input box (moved further down to prevent overlap)
   fill(255);
-  rect(20, 200, 300, 40); // Increased Y-coordinate to 200
+  rect(20, 200, 300, 40);
   fill(0);
-  text("Enter Airline 2: " + searchQuery2, 30, 225); // Adjusted Y position for centering
+  text("Enter Airline 2: " + searchQuery2, 30, 225);
 
   // Draw matching airlines for searchQuery (Airline 1)
   ArrayList<String> matchingAirlines1 = findMatchingAirlines(searchQuery);
   for (int i = 0; i < min(10, matchingAirlines1.size()); i++) {
     String airline = matchingAirlines1.get(i);
-    drawButton(airline, 20, 260 + i * 30, 300, 25, searchQuery.equals(airline)); // Start drawing from Y = 260
+    drawButton(airline, 20, 260 + i * 30, 300, 25, searchQuery.equals(airline));
   }
 
   // Draw matching airlines for searchQuery2 (Airline 2)
   ArrayList<String> matchingAirlines2 = findMatchingAirlines(searchQuery2);
   for (int i = 0; i < min(10, matchingAirlines2.size()); i++) {
     String airline = matchingAirlines2.get(i);
-    drawButton(airline, 20, 440 + i * 30, 300, 25, searchQuery2.equals(airline)); // Start drawing from Y = 440
+    drawButton(airline, 20, 440 + i * 30, 300, 25, searchQuery2.equals(airline));
   }
 
   // Draw two large boxes for graphs (moved down by 50px)
-  stroke(150);       // Grey border
-  strokeWeight(2);   // Border thickness
+  stroke(150);
+  strokeWeight(2);
   
   // First box (left)
-  fill(220);         // Light grey background for the first box
-  rect(350, 100, 500, 500); // Draw first box (moved down by 50px)
+  fill(220);
+  rect(350, 100, 500, 500);
   fill(0);
   textAlign(CENTER);
-  text("Graph 1: " + (searchQuery.isEmpty() ? "No Airline Selected" : searchQuery), 600, 100); // Display Airline 1 input or default text
+  text("Graph 1: " + (searchQuery.isEmpty() ? "No Airline Selected" : searchQuery), 600, 100);
   
   // Second box (right)
-  fill(220);         // Reset fill to light grey before drawing the second box
-  rect(870, 100, 500, 500); // Draw second box (moved down by 50px)
+  fill(220);
+  rect(870, 100, 500, 500);
   fill(0);
   textAlign(CENTER);
-  text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airline Selected" : searchQuery2), 1120, 100); // Display Airline 2 input or default text
+  text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airline Selected" : searchQuery2), 1120, 100);
 }
-
 
 void drawCompareAirports(){
   // Future code for compare by airports (if needed)
@@ -671,27 +670,35 @@ void drawLatenessVisualization() {
   }
 }
 
-// Handle keyboard input for search
+// Global variable to track which airline text field is active:
+// 0 = none, 1 = Airline 1 field, 2 = Airline 2 field
+int activeAirlineField = 0;
+
+
 void keyPressed() {
   if (currentScreen == 5) { // Compare Airlines screen
+    if (activeAirlineField == 1) { // Update Airline 1 field
+      if (key == BACKSPACE && searchQuery.length() > 0) {
+        searchQuery = searchQuery.substring(0, searchQuery.length() - 1);
+      } else if (key >= ' ' && key <= 'z') {
+        searchQuery += key;
+      }
+    } else if (activeAirlineField == 2) { // Update Airline 2 field
+      if (key == BACKSPACE && searchQuery2.length() > 0) {
+        searchQuery2 = searchQuery2.substring(0, searchQuery2.length() - 1);
+      } else if (key >= ' ' && key <= 'z') {
+        searchQuery2 += key;
+      }
+    }
+  } else if (currentScreen == 1) {
+    // Existing airport view key handling:
     if (key == BACKSPACE && searchQuery.length() > 0) {
       searchQuery = searchQuery.substring(0, searchQuery.length() - 1);
     } else if (key >= ' ' && key <= 'z') {
       searchQuery += key;
     }
-
-    if (key == BACKSPACE && searchQuery2.length() > 0) {
-      searchQuery2 = searchQuery2.substring(0, searchQuery2.length() - 1);
-    } else if (key >= ' ' && key <= 'z') {
-      searchQuery2 += key;
-    }
-  } else if (currentScreen == 1) { // Airport view screen
-    if (key == BACKSPACE && searchQuery.length() > 0) {
-      searchQuery = searchQuery.substring(0, searchQuery.length() - 1);
-    } else if (key >= ' ' && key <= 'z') {
-      searchQuery += key;
-    }
-  } else if (currentScreen == 2) { // Date range view
+  } else if (currentScreen == 2) {
+    // Date range view key handling:
     if (mouseX >= 20 && mouseX <= 170 && mouseY >= 100 && mouseY <= 140) {
       // Start date input
       if (key == BACKSPACE && startDate.length() > 0) {
@@ -710,7 +717,6 @@ void keyPressed() {
   }
 }
 
-// MousePressed to handle selection in the airline input boxes
 void mousePressed() {
   // Main menu buttons
   if (currentScreen == 0) {
@@ -765,34 +771,39 @@ void mousePressed() {
     }
   }
 
-  // Compare Airlines screen - handle text input boxes
+  // Compare Airlines screen
   if (currentScreen == 5) {
-    // Airline 1 input box (searchQuery)
+    // Check if click is in Airline 1 input box:
     if (mouseX >= 20 && mouseX <= 320 && mouseY >= 100 && mouseY <= 140) {
-      searchQuery = ""; // Reset search query if clicked
+      activeAirlineField = 1;  // Activate Airline 1 field
+      return;
     }
-    // Airline 2 input box (searchQuery2)
-    if (mouseX >= 20 && mouseX <= 320 && mouseY >= 160 && mouseY <= 200) {
-      searchQuery2 = ""; // Reset search query if clicked
+    // Check if click is in Airline 2 input box:
+    // Updated the Y-range here to match the drawn rectangle at y=200, height=40 (200 to 240)
+    if (mouseX >= 20 && mouseX <= 320 && mouseY >= 200 && mouseY <= 240) {
+      activeAirlineField = 2;  // Activate Airline 2 field
+      return;
     }
-
-    // Select Airline 1 from the list (Airline 1 matching list)
+    
+    // Check if click is on an Airline 1 list item
     ArrayList<String> matchingAirlines1 = findMatchingAirlines(searchQuery);
     for (int i = 0; i < min(10, matchingAirlines1.size()); i++) {
       if (mouseX >= 20 && mouseX <= 320 &&
-          mouseY >= 220 + i * 30 && mouseY <= 245 + i * 30) {
-        searchQuery = matchingAirlines1.get(i); // Select the airline
-        return;  // Exit the loop after a selection is made
+          mouseY >= 260 + i * 30 && mouseY <= 285 + i * 30) {
+        searchQuery = matchingAirlines1.get(i);
+        activeAirlineField = 0; // Deactivate field after selection
+        return;
       }
     }
-
-    // Select Airline 2 from the list (Airline 2 matching list)
+    
+    // Check if click is on an Airline 2 list item
     ArrayList<String> matchingAirlines2 = findMatchingAirlines(searchQuery2);
     for (int i = 0; i < min(10, matchingAirlines2.size()); i++) {
       if (mouseX >= 20 && mouseX <= 320 &&
-          mouseY >= 350 + i * 30 && mouseY <= 375 + i * 30) {
-        searchQuery2 = matchingAirlines2.get(i); // Select the airline
-        return;  // Exit the loop after a selection is made
+          mouseY >= 440 + i * 30 && mouseY <= 465 + i * 30) {
+        searchQuery2 = matchingAirlines2.get(i);
+        activeAirlineField = 0; // Deactivate field after selection
+        return;
       }
     }
   }
@@ -817,26 +828,28 @@ void mousePressed() {
     }
   }
 
-  // Handle "Previous" in Compare View (Return to Main Menu)
+  // "Previous" button in Compare View (Return to Main Menu)
   if (currentScreen == 4) {
-    if (mouseX >= width - 300 && mouseX <= width - 200 && mouseY >= height - 40 && mouseY <= height - 10) {
-      currentScreen = 0; // Return to main menu
+    if (mouseX >= width - 300 && mouseX <= width - 200 &&
+        mouseY >= height - 40 && mouseY <= height - 10) {
+      currentScreen = 0;
       return;
     }
   }
 
   // Pagination controls
   if (filteredFlights.size() > recordsPerPage) {
-    if (mouseX >= width - 300 && mouseX <= width - 200 && mouseY >= height - 40 && mouseY <= height - 10) {
+    if (mouseX >= width - 300 && mouseX <= width - 200 &&
+        mouseY >= height - 40 && mouseY <= height - 10) {
       startIndex = max(0, startIndex - recordsPerPage);
       return;
-    } else if (mouseX >= width - 150 && mouseX <= width - 50 && mouseY >= height - 40 && mouseY <= height - 10) {
+    } else if (mouseX >= width - 150 && mouseX <= width - 50 &&
+               mouseY >= height - 40 && mouseY <= height - 10) {
       startIndex = min(filteredFlights.size() - recordsPerPage, startIndex + recordsPerPage);
       return;
     }
   }
 }
-
 
 // DANIEL
 void loadFlightData(String filename) {
