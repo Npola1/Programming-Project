@@ -6,11 +6,14 @@ import java.util.*;
 // Data structures
 ArrayList<Flight> flights;
 ArrayList<Flight> filteredFlights;
+ArrayList<String> matchingAirlines1 = new ArrayList<>();
+ArrayList<String> matchingAirlines2 = new ArrayList<>();
 HashMap<String, Airport> airports;
 HashMap<String, Integer> airlines;
 
 // UI variables
 int currentScreen = 0; // 0: main menu, 1: airport view, 2: date range view, 3: lateness view, 4: compare view
+boolean isDropdownOpen = false;
 int startIndex = 0;
 int recordsPerPage = 15;
 String selectedAirport = "";
@@ -22,6 +25,12 @@ String searchQuery = "";
 PImage mainMenuBackground;
 PImage otherScreensBackground;
 String searchQuery2 = ""; // Second airline search query
+String searchAirport = "";
+String searchAirport2 = "";
+String selectedAirport1="";
+String selectedAirport2="";
+int activeDropdown = 0;
+
 
 // Screen dimensions
 final int SCREEN_WIDTH = 1200;
@@ -81,12 +90,11 @@ void draw() {
     case 4:
       drawCompare();
       break;
-    case 5:  // Added case for Compare by Airlines
+    case 5:  
       drawCompareAirlines();
       break;
     case 6:  // Future case for Compare by Airports if needed
       drawCompareAirports();
-      break;
     default:
       break;
   }
@@ -148,13 +156,13 @@ void drawCompareAirlines() {
   fill(255);
   rect(20, 100, 300, 40);
   fill(0);
-  text("Enter Airline 1: " + searchQuery, 30, 125);
+  text("Enter Airline 1: " + searchAirport, 30, 125);
 
   // Airline 2 input box
   fill(255);
   rect(20, 200, 300, 40);
   fill(0);
-  text("Enter Airline 2: " + searchQuery2, 30, 225);
+  text("Enter Airline 2: " + searchAirport2, 30, 225);
 
   // Draw matching airlines for searchQuery (Airline 1)
   ArrayList<String> matchingAirlines1 = findMatchingAirlines(searchQuery);
@@ -321,9 +329,74 @@ int[] getFlightStats(String airline) {
 }
 
 
-void drawCompareAirports(){
-  // Just copy paste the Compare Airline bit into chat gpt ask it to edit it. if youre too lazy or dont have time or you could manually do it. I leave it up to you guys
-  //ok
+void drawCompareAirports() {
+  fill(50);
+  textAlign(CENTER);
+  textSize(24);
+  text("Compare Airports", width / 2, 50);
+
+  textAlign(LEFT);
+  textSize(16);
+
+  // Airport 1 input box
+  fill(255);
+  rect(20, 100, 300, 40);
+  fill(0);
+  text("Enter Airport 1: " + searchQuery, 30, 125);
+
+  // Airport 2 input box
+  fill(255);
+  rect(20, 200, 300, 40);
+  fill(0);
+  text("Enter Airport 2: " + searchQuery2, 30, 225);
+
+  // Draw two large boxes for graphs
+  stroke(150);
+  strokeWeight(2);
+
+  // First box (left)
+  fill(220);
+  rect(350, 100, 500, 500);
+  fill(0);
+  textAlign(CENTER);
+  text("Graph 1: " + (searchQuery.isEmpty() ? "No Airport Selected" : searchQuery), 600, 150);
+  drawPieChart(350, 300, searchQuery);
+
+  // Second box (right)
+  fill(220);
+  rect(870, 100, 500, 500);
+  fill(0);
+  textAlign(CENTER);
+  text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airport Selected" : searchQuery2), 1120, 150);
+  drawPieChart(870, 300, searchQuery2);
+
+  // Draw comparison box
+  fill(255);
+  rect(350, 620, 1020, 150);
+  fill(0);
+  textAlign(CENTER);
+  text("Comparison", 870, 640);
+  drawComparison(searchQuery, searchQuery2);
+}
+
+void selectAirport1(String airport) {
+  selectedAirport1 = airport;
+}
+
+void selectAirport2(String airport) {
+  selectedAirport2 = airport;
+}
+
+ArrayList<String> findMatchingAirports1(String searchQuery) {
+  ArrayList<String> matchingAirports = new ArrayList<String>();
+
+  for (String airportCode : airports.keySet()) {
+    if (airportCode.toLowerCase().contains(searchQuery.toLowerCase())) {
+      matchingAirports.add(airportCode);
+    }
+  }
+
+  return matchingAirports;
 }
 
 void drawAirportView() {
@@ -744,6 +817,7 @@ void drawLatenessVisualization() {
   // Calculate average delay by airline
   HashMap<String, Integer> totalDelayByAirline = new HashMap<String, Integer>();
   HashMap<String, Integer> flightCountByAirline = new HashMap<String, Integer>();
+  isDropdownOpen = !isDropdownOpen;
 
   for (Flight flight : flights) {
     if (flight.cancelled == 0 && flight.diverted == 0 &&
@@ -808,14 +882,14 @@ int activeAirlineField = 0;
 
 
 void keyPressed() {
-  if (currentScreen == 5) { // Compare Airlines screen
-    if (activeAirlineField == 1) { // Update Airline 1 field
+  if (currentScreen == 6) { // Compare Airports screen
+    if (activeAirlineField == 1) { // Update Airport 1 field
       if (key == BACKSPACE && searchQuery.length() > 0) {
         searchQuery = searchQuery.substring(0, searchQuery.length() - 1);
       } else if (key >= ' ' && key <= 'z') {
         searchQuery += key;
       }
-    } else if (activeAirlineField == 2) { // Update Airline 2 field
+    } else if (activeAirlineField == 2) { // Update Airport 2 field
       if (key == BACKSPACE && searchQuery2.length() > 0) {
         searchQuery2 = searchQuery2.substring(0, searchQuery2.length() - 1);
       } else if (key >= ' ' && key <= 'z') {
@@ -903,40 +977,17 @@ void mousePressed() {
     }
   }
 
-  // Compare Airlines screen
-  if (currentScreen == 5) {
-    // Check if click is in Airline 1 input box:
+  // Compare Airports screen
+  if (currentScreen == 6) {
+    // Check if click is in Airport 1 input box:
     if (mouseX >= 20 && mouseX <= 320 && mouseY >= 100 && mouseY <= 140) {
-      activeAirlineField = 1;  // Activate Airline 1 field
+      activeAirlineField = 1;  // Activate Airport 1 field
       return;
     }
-    // Check if click is in Airline 2 input box:
-    // Updated the Y-range here to match the drawn rectangle at y=200, height=40 (200 to 240)
+    // Check if click is in Airport 2 input box:
     if (mouseX >= 20 && mouseX <= 320 && mouseY >= 200 && mouseY <= 240) {
-      activeAirlineField = 2;  // Activate Airline 2 field
+      activeAirlineField = 2;  // Activate Airport 2 field
       return;
-    }
-    
-    // Check if click is on an Airline 1 list item
-    ArrayList<String> matchingAirlines1 = findMatchingAirlines(searchQuery);
-    for (int i = 0; i < min(10, matchingAirlines1.size()); i++) {
-      if (mouseX >= 20 && mouseX <= 320 &&
-          mouseY >= 260 + i * 30 && mouseY <= 285 + i * 30) {
-        searchQuery = matchingAirlines1.get(i);
-        activeAirlineField = 0; // Deactivate field after selection
-        return;
-      }
-    }
-    
-    // Check if click is on an Airline 2 list item
-    ArrayList<String> matchingAirlines2 = findMatchingAirlines(searchQuery2);
-    for (int i = 0; i < min(10, matchingAirlines2.size()); i++) {
-      if (mouseX >= 20 && mouseX <= 320 &&
-          mouseY >= 440 + i * 30 && mouseY <= 465 + i * 30) {
-        searchQuery2 = matchingAirlines2.get(i);
-        activeAirlineField = 0; // Deactivate field after selection
-        return;
-      }
     }
   }
 
@@ -982,6 +1033,8 @@ void mousePressed() {
     }
   }
 }
+
+
 
 // DANIEL
 void loadFlightData(String filename) {
