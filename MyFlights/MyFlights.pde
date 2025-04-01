@@ -222,7 +222,7 @@ void drawPieChart(float x, float y, String airline) {
         cancelledFlights++;
       } else if (flight.diverted == 1) {
         divertedFlights++;
-      } else if (flight.actualDeparture > flight.scheduledDeparture) {
+      } else if (flight.actualDeparture - 10 > flight.scheduledDeparture) {   // the delay has to be 10 minutes or higher for it to count 
         delayedFlights++;
       }
     }
