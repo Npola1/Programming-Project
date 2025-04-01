@@ -638,7 +638,10 @@ void drawSummaryVisualization() {
 
 // SUMAMA
 void drawAirportStats(String airport) {
+
+  drawPieChart(PieX, PieY, airport)
   // Count flights to/from the selected airport
+/*
   int departingFlights = 0;
   int arrivingFlights = 0;
   int cancelledFlights = 0;
@@ -733,6 +736,7 @@ void drawAirportStats(String airport) {
   text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", legendX + 20, legendY + 30);
   text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 20, legendY + 50);
   text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendX + 20, legendY + 70);
+*/
 }
 
 // YUSUF
