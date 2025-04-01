@@ -209,39 +209,9 @@ void drawCompareAirlines() {
 
 void drawPieChart(float x, float y, String airline) {
   if (airline.isEmpty()) return;
+
   // New code by Yanko
   int[] list = getFlightStats(airline);
-
-
-  /*
-  Old code that doesnt utilize a method that already does this
-  New 
-  int totalFlights = 0;
-  int cancelledFlights = 0;
-  int divertedFlights = 0;
-  int delayedFlights = 0;
-
-  for (Flight flight : flights) {
-    if (flight.airline.equals(airline)) {
-      totalFlights++;
-      if (flight.cancelled == 1) {
-        cancelledFlights++;
-      } else if (flight.diverted == 1) {
-        divertedFlights++;
-      } else if (flight.actualDeparture - 10 > flight.scheduledDeparture) {   // the delay has to be 10 minutes or higher for it to count 
-        delayedFlights++;
-      }
-    }
-  }
-
-  if (totalFlights == 0) return;
-
-  float cancelledPercentage = (float)cancelledFlights / totalFlights;
-  float divertedPercentage = (float)divertedFlights / totalFlights;
-  float delayedPercentage = (float)delayedFlights / totalFlights;
-  float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
-  */
-
 
   float cancelledPercentage = (float)list[1] / list[0];
   float divertedPercentage = (float)list[2] / list[0];
