@@ -137,46 +137,32 @@ void drawCompare() {
   textAlign(LEFT);
 
   // Compare by Flights/Airlines button
-  drawButton("Compare by Flights (Airlines)", width / 2 - 250, 200, 500, 80, currentScreen == 4);
+  drawButton("Compare by Airports", width / 2 - 250, 200, 500, 80, currentScreen == 4);
 
   // Compare by Airports button
-  drawButton("Compare by Airports", width / 2 - 250, 300, 500, 80, currentScreen == 4);
+  drawButton("Compare by Flights (Airlines)", width / 2 - 250, 300, 500, 80, currentScreen == 4);
 }
 
-void drawCompareAirlines() {
+void drawCompareAirports() {
   fill(50);
   textAlign(CENTER);
   textSize(24);
-  text("Compare Airlines", width / 2, 50);
+  text("Compare Airports", width / 2, 50);
 
   textAlign(LEFT);
   textSize(16);
 
-  // Airline 1 input box
+  // Airport 1 input box
   fill(255);
   rect(20, 100, 300, 40);
   fill(0);
-  text("Enter Airline 1: " + searchAirport, 30, 125);
+  text("Enter Airport 1: " + searchQuery, 30, 125);
 
-  // Airline 2 input box
+  // Airport 2 input box
   fill(255);
   rect(20, 200, 300, 40);
   fill(0);
-  text("Enter Airline 2: " + searchAirport2, 30, 225);
-
-  // Draw matching airlines for searchQuery (Airline 1)
-  ArrayList<String> matchingAirlines1 = findMatchingAirlines(searchQuery);
-  for (int i = 0; i < min(10, matchingAirlines1.size()); i++) {
-    String airline = matchingAirlines1.get(i);
-    drawButton(airline, 20, 260 + i * 30, 300, 25, searchQuery.equals(airline));
-  }
-
-  // Draw matching airlines for searchQuery2 (Airline 2)
-  ArrayList<String> matchingAirlines2 = findMatchingAirlines(searchQuery2);
-  for (int i = 0; i < min(10, matchingAirlines2.size()); i++) {
-    String airline = matchingAirlines2.get(i);
-    drawButton(airline, 20, 440 + i * 30, 300, 25, searchQuery2.equals(airline));
-  }
+  text("Enter Airport 2: " + searchQuery2, 30, 225);
 
   // Draw two large boxes for graphs
   stroke(150);
@@ -187,7 +173,7 @@ void drawCompareAirlines() {
   rect(350, 100, 500, 500);
   fill(0);
   textAlign(CENTER);
-  text("Graph 1: " + (searchQuery.isEmpty() ? "No Airline Selected" : searchQuery), 600, 150);
+  text("Graph 1: " + (searchQuery.isEmpty() ? "No Airport Selected" : searchQuery), 600, 150);
   drawPieChart(350, 300, searchQuery, 300);
 
   // Second box (right)
@@ -195,7 +181,7 @@ void drawCompareAirlines() {
   rect(870, 100, 500, 500);
   fill(0);
   textAlign(CENTER);
-  text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airline Selected" : searchQuery2), 1120, 150);
+  text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airport Selected" : searchQuery2), 1120, 150);
   drawPieChart(870, 300, searchQuery2, 300);
 
   // Draw comparison box
@@ -313,26 +299,40 @@ int[] getFlightStats(String airline) {
 }
 
 
-void drawCompareAirports() {
+void drawCompareAirlines() {
   fill(50);
   textAlign(CENTER);
   textSize(24);
-  text("Compare Airports", width / 2, 50);
+  text("Compare Airlines", width / 2, 50);
 
   textAlign(LEFT);
   textSize(16);
 
-  // Airport 1 input box
+  // Airline 1 input box
   fill(255);
   rect(20, 100, 300, 40);
   fill(0);
-  text("Enter Airport 1: " + searchQuery, 30, 125);
+  text("Enter Airline 1: " + searchAirport, 30, 125);
 
-  // Airport 2 input box
+  // Airline 2 input box
   fill(255);
   rect(20, 200, 300, 40);
   fill(0);
-  text("Enter Airport 2: " + searchQuery2, 30, 225);
+  text("Enter Airline 2: " + searchAirport2, 30, 225);
+
+  // Draw matching airlines for searchQuery (Airline 1)
+  ArrayList<String> matchingAirlines1 = findMatchingAirlines(searchQuery);
+  for (int i = 0; i < min(10, matchingAirlines1.size()); i++) {
+    String airline = matchingAirlines1.get(i);
+    drawButton(airline, 20, 260 + i * 30, 300, 25, searchQuery.equals(airline));
+  }
+
+  // Draw matching airlines for searchQuery2 (Airline 2)
+  ArrayList<String> matchingAirlines2 = findMatchingAirlines(searchQuery2);
+  for (int i = 0; i < min(10, matchingAirlines2.size()); i++) {
+    String airline = matchingAirlines2.get(i);
+    drawButton(airline, 20, 440 + i * 30, 300, 25, searchQuery2.equals(airline));
+  }
 
   // Draw two large boxes for graphs
   stroke(150);
@@ -343,7 +343,7 @@ void drawCompareAirports() {
   rect(350, 100, 500, 500);
   fill(0);
   textAlign(CENTER);
-  text("Graph 1: " + (searchQuery.isEmpty() ? "No Airport Selected" : searchQuery), 600, 150);
+  text("Graph 1: " + (searchQuery.isEmpty() ? "No Airline Selected" : searchQuery), 600, 150);
   drawPieChart(350, 300, searchQuery, 300);
 
   // Second box (right)
@@ -351,7 +351,7 @@ void drawCompareAirports() {
   rect(870, 100, 500, 500);
   fill(0);
   textAlign(CENTER);
-  text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airport Selected" : searchQuery2), 1120, 150);
+  text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airline Selected" : searchQuery2), 1120, 150);
   drawPieChart(870, 300, searchQuery2, 300);
 
   // Draw comparison box
@@ -639,7 +639,7 @@ void drawSummaryVisualization() {
 // SUMAMA
 void drawAirportStats(String airport) {
 
-  drawPieChart(170, 650, airport)
+  drawPieChart(170, 650, airport, 100);
   // Count flights to/from the selected airport
 /*
   int departingFlights = 0;
@@ -736,6 +736,7 @@ void drawAirportStats(String airport) {
   text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", legendX + 20, legendY + 30);
   text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 20, legendY + 50);
   text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendX + 20, legendY + 70);
+
 */
 }
 
@@ -935,10 +936,10 @@ void mousePressed() {
   if (currentScreen == 4) {
     if (mouseX >= width / 2 - 250 && mouseX <= width / 2 + 250) {
       if (mouseY >= 200 && mouseY <= 280) {
-        currentScreen = 5; // Compare by Flights (Airlines)
+        currentScreen = 6; // Compare by Airports
         return;
       } else if (mouseY >= 300 && mouseY <= 380) {
-        currentScreen = 6; // Compare by Airports
+        currentScreen = 5; // Compare by Flights (Airlines)
         return;
       }
     }
@@ -1021,6 +1022,7 @@ void mousePressed() {
     }
   }
 }
+
 
 
 
