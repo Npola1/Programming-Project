@@ -303,7 +303,7 @@ int[] getFlightStats(String airline) {
         cancelledFlights++;
       } else if (flight.diverted == 1) {
         divertedFlights++;
-      } else if (flight.actualDeparture > flight.scheduledDeparture) {
+      } else if (flight.actualDeparture - 10 > flight.scheduledDeparture) {
         delayedFlights++;
       }
     }
