@@ -188,7 +188,7 @@ void drawCompareAirlines() {
   fill(0);
   textAlign(CENTER);
   text("Graph 1: " + (searchQuery.isEmpty() ? "No Airline Selected" : searchQuery), 600, 150);
-  drawPieChart(350, 300, searchQuery);
+  drawPieChart(350, 300, searchQuery, 300);
 
   // Second box (right)
   fill(220);
@@ -196,7 +196,7 @@ void drawCompareAirlines() {
   fill(0);
   textAlign(CENTER);
   text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airline Selected" : searchQuery2), 1120, 150);
-  drawPieChart(870, 300, searchQuery2);
+  drawPieChart(870, 300, searchQuery2, 300);
 
   // Draw comparison box
   fill(255);
@@ -207,7 +207,7 @@ void drawCompareAirlines() {
   drawComparison(searchQuery, searchQuery2);
 }
 
-void drawPieChart(float x, float y, String airline) {
+void drawPieChart(float x, float y, String airline, int size) {
   if (airline.isEmpty()) return;
 
   // New code by Yanko
@@ -219,7 +219,7 @@ void drawPieChart(float x, float y, String airline) {
   float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
   
 
-  float pieSize = 300;
+  float pieSize = size;
   float pieX = x + pieSize / 2;
   float pieY = y + pieSize / 2;
 
@@ -344,7 +344,7 @@ void drawCompareAirports() {
   fill(0);
   textAlign(CENTER);
   text("Graph 1: " + (searchQuery.isEmpty() ? "No Airport Selected" : searchQuery), 600, 150);
-  drawPieChart(350, 300, searchQuery);
+  drawPieChart(350, 300, searchQuery, 300);
 
   // Second box (right)
   fill(220);
@@ -352,7 +352,7 @@ void drawCompareAirports() {
   fill(0);
   textAlign(CENTER);
   text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airport Selected" : searchQuery2), 1120, 150);
-  drawPieChart(870, 300, searchQuery2);
+  drawPieChart(870, 300, searchQuery2, 300);
 
   // Draw comparison box
   fill(255);
@@ -409,7 +409,7 @@ void drawAirportView() {
   // Draw flight data if an airport is selected
   if (!selectedAirport.isEmpty()) {
     drawFlightTable(350, 100, width - 380, height - 150);
-    drawAirportStats(selectedAirport);
+    drawPieChart(120, 570, selectedAirport, 100);
   }
 }
 
@@ -639,7 +639,7 @@ void drawSummaryVisualization() {
 // SUMAMA
 void drawAirportStats(String airport) {
 
-  drawPieChart(PieX, PieY, airport)
+  drawPieChart(170, 650, airport)
   // Count flights to/from the selected airport
 /*
   int departingFlights = 0;
