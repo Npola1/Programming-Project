@@ -30,8 +30,9 @@ String searchAirport2 = "";
 String selectedAirport1="";
 String selectedAirport2="";
 int activeDropdown = 0;
-
-
+PImage planeImage;
+Plane plane;
+boolean planeVisible = true;
 // Screen dimensions
 final int SCREEN_WIDTH = 1200;
 final int SCREEN_HEIGHT = 800;
@@ -55,6 +56,10 @@ void setup() {
 
   // Initially, filtered flights is the same as all flights
   filteredFlights = new ArrayList<Flight>(flights);
+  
+  planeImage = loadImage("metalBird.png"); // Replace with your image file
+  plane = new Plane(0, 0, 3, 2, 50, 0.05, planeImage);
+
 }
 
 void draw() {
@@ -101,6 +106,12 @@ void draw() {
 
   // Draw navigation bar
   drawNavigationBar();
+  
+  if (planeVisible) {
+    plane.update();
+    plane.display();
+  }
+  
 }
 
 void drawMainMenu() {
