@@ -478,7 +478,7 @@ void drawAirportView() {
   textFont(titleFont);
   fill(50);
   textAlign(CENTER);
-  text("Flights by Airport", width/2, 80);
+  text("Flights by Airport", width / 2, 80);
 
   textFont(regularFont);
   textAlign(LEFT);
@@ -499,11 +499,88 @@ void drawAirportView() {
 
   // Draw flight data if an airport is selected
   if (!selectedAirport.isEmpty()) {
-    drawFlightTable(350, 100, width - 380, height - 150);
-    drawPieChart(120, 570, selectedAirport, 100);
+    drawFlightTable(350, 100, width - 380, height - 400);
+
+    // Draw a white box for the pie chart in the left corner, slightly larger
+    fill(255);
+    rect(20, 450, 320, 300); // Adjusted size and position
+
+    // Draw the pie chart within the white box
+    drawPieChart(20, 450, selectedAirport, 200); // Adjusted size and position
   }
 }
-
+void DrawPieChart(float x, float y, String airport, int size) { 
+  if (airport.isEmpty()) return;
+  // Get flight statistics
+  int[] list = getFlightStats(airport);
+  float cancelledPercentage = (float) list[1] / list[0];
+  float divertedPercentage = (float) list[2] / list[0];
+  float delayedPercentage = (float) list[3] / list[0];
+  float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
+  
+  // Pie chart settings: drawn at (x,y) with width/height equal to size
+  float pieSize = size;
+  float pieX = x + pieSize / 2;
+  float pieY = y + pieSize / 2;
+  
+  // Draw pie chart sections
+  float startAngle = 0;
+  fill(0, 204, 102); // Normal - Green
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + normalPercentage * TWO_PI);
+  startAngle += normalPercentage * TWO_PI;
+  
+  fill(255, 0, 0); // Cancelled - Red
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + cancelledPercentage * TWO_PI);
+  startAngle += cancelledPercentage * TWO_PI;
+  
+  fill(255, 165, 0); // Diverted - Orange
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + divertedPercentage * TWO_PI);
+  startAngle += divertedPercentage * TWO_PI;
+  
+  fill(255, 255, 0); // Delayed - Yellow
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + delayedPercentage * TWO_PI);
+  
+  // FIXED: Position legend inside the white box at the bottom left
+  float margin = 10;
+  float legendBoxSize = 20;
+  float legendSpacing = 10;
+  
+  // Bottom-left corner of the white box
+  float legendStartX = x + margin;
+  float legendStartY = y + size + margin; // Directly under the pie chart
+  
+  // Stack the legend items vertically
+  float currentY = legendStartY;
+  
+  // Normal
+  fill(0, 204, 102);
+  rect(legendStartX, currentY, legendBoxSize, legendBoxSize);
+  fill(0);
+  textAlign(LEFT);
+  textSize(14);
+  text("Normal: " + (int)(normalPercentage * 100) + "%", legendStartX + legendBoxSize + 5, currentY + legendBoxSize - 5);
+  
+  // Cancelled
+  currentY += legendBoxSize + legendSpacing;
+  fill(255, 0, 0);
+  rect(legendStartX, currentY, legendBoxSize, legendBoxSize);
+  fill(0);
+  text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", legendStartX + legendBoxSize + 5, currentY + legendBoxSize - 5);
+  
+  // Diverted
+  currentY += legendBoxSize + legendSpacing;
+  fill(255, 165, 0);
+  rect(legendStartX, currentY, legendBoxSize, legendBoxSize);
+  fill(0);
+  text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendStartX + legendBoxSize + 5, currentY + legendBoxSize - 5);
+  
+  // Delayed
+  currentY += legendBoxSize + legendSpacing;
+  fill(255, 255, 0);
+  rect(legendStartX, currentY, legendBoxSize, legendBoxSize);
+  fill(0);
+  text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendStartX + legendBoxSize + 5, currentY + legendBoxSize - 5);
+}
 ArrayList<String> findMatchingAirlines(String searchQuery) {
   ArrayList<String> matchingAirlines = new ArrayList<String>();
 
