@@ -34,11 +34,11 @@ PImage planeImage;
 Plane plane;
 boolean planeVisible = true;
 // Screen dimensions
-final int SCREEN_WIDTH = 1200;
+final int SCREEN_WIDTH = 1600;
 final int SCREEN_HEIGHT = 800;
 
 void setup() {
-  size(1600, 800);
+  size(SCREEN_WIDTH, SCREEN_HEIGHT);
   titleFont = createFont("Arial Bold", 24);
   regularFont = createFont("Arial", 14);
 
@@ -584,7 +584,7 @@ void drawFlightTable(float x, float y, float w, float h) {
     } else if (flight.diverted == 1) {
       fill(255, 165, 0);
       text("Diverted", x + 770, rowY + 15);
-    } else if (flight.actualDeparture > flight.scheduledDeparture) {
+    } else if (flight.actualDeparture - 10 > flight.scheduledDeparture) {
       fill(255, 165, 0);
       int delayMinutes = calculateDelayMinutes(flight.scheduledDeparture, flight.actualDeparture);
       text("Delayed " + delayMinutes + " min", x + 770, rowY + 15);
@@ -1131,6 +1131,8 @@ int calculateDelayMinutes(int scheduled, int actual) {
   } else if (diff > 720) {  // More than 12 hours positive
     diff -= 1440;     // Subtract 24 hours
   }
+
+  if(diff <= 10) return 0;
 
   return max(diff, 0);  // Only return positive delays
 }
