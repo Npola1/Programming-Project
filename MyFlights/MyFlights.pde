@@ -650,30 +650,22 @@ void drawSummaryVisualization() {
 // SUMAMA
 void drawAirportStats(String airport) {
 
-  drawPieChart(170, 650, airport, 100);
+  //drawPieChart(170, 650, airport, 100);
   // Count flights to/from the selected airport
-/*
-  int departingFlights = 0;
-  int arrivingFlights = 0;
-  int cancelledFlights = 0;
-  int divertedFlights = 0;
-  int delayedFlights = 0;
+  int[] list = getFlightStats(airline);
 
-  for (Flight flight : flights) {
-    if (flight.origin.equals(airport)) {
-      departingFlights++;
-      if (flight.cancelled == 1) {
-        cancelledFlights++;
-      } else if (flight.diverted == 1) {
-        divertedFlights++;
-      } else if (flight.actualDeparture > flight.scheduledDeparture) {
-        delayedFlights++;
-      }
-    }
-    if (flight.destination.equals(airport)) {
-      arrivingFlights++;
-    }
-  }
+  float cancelledPercentage = (float)list[1] / list[0];
+  float divertedPercentage = (float)list[2] / list[0];
+  float delayedPercentage = (float)list[3] / list[0];
+  float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
+
+  int departingFlights = list[0];
+  int arrivingFlights = list[1];
+  int cancelledFlights = list[2];
+  int divertedFlights = list[3];
+  int delayedFlights = list[4];
+
+ 
 
   // Draw stats box
   fill(255);
@@ -698,11 +690,7 @@ void drawAirportStats(String airport) {
   }
 
   // Draw a pie chart of flight statuses
-  float total = departingFlights;
-  float cancelledPercentage = (float)cancelledFlights / total;
-  float divertedPercentage = (float)divertedFlights / total;
-  float delayedPercentage = (float)delayedFlights / total;
-  float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
+  
   int pieX = 170, pieY = 620, pieSize = 100; // Adjusted Y position
 
   // Draw pie chart sections
@@ -748,7 +736,7 @@ void drawAirportStats(String airport) {
   text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 20, legendY + 50);
   text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendX + 20, legendY + 70);
 
-*/
+
 }
 
 // YUSUF
