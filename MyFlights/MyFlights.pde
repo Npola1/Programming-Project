@@ -37,8 +37,12 @@ boolean planeVisible = true;
 final int SCREEN_WIDTH = 1600;
 final int SCREEN_HEIGHT = 800;
 
-void setup() {
+void settings() {
   size(SCREEN_WIDTH, SCREEN_HEIGHT);
+}
+
+
+void setup() {
   titleFont = createFont("Arial Bold", 24);
   regularFont = createFont("Arial", 14);
 
@@ -649,27 +653,25 @@ void drawSummaryVisualization() {
 
 // SUMAMA
 void drawAirportStats(String airport) {
-
-  //drawPieChart(170, 650, airport, 100);
   // Count flights to/from the selected airport
-  int[] list = getFlightStats(airline);
-
-  float cancelledPercentage = (float)list[1] / list[0];
-  float divertedPercentage = (float)list[2] / list[0];
-  float delayedPercentage = (float)list[3] / list[0];
+  int[] stats = getAirportStats(airport);
+  
+  int totalFlights = stats[0];
+  int departingFlights = stats[1];
+  int arrivingFlights = stats[2];
+  int cancelledFlights = stats[3];
+  int divertedFlights = stats[4];
+  int delayedFlights = stats[5];
+  
+  // Calculate percentages for pie chart
+  float cancelledPercentage = totalFlights > 0 ? (float)cancelledFlights / totalFlights : 0;
+  float divertedPercentage = totalFlights > 0 ? (float)divertedFlights / totalFlights : 0;
+  float delayedPercentage = totalFlights > 0 ? (float)delayedFlights / totalFlights : 0;
   float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
-
-  int departingFlights = list[0];
-  int arrivingFlights = list[1];
-  int cancelledFlights = list[2];
-  int divertedFlights = list[3];
-  int delayedFlights = list[4];
-
- 
 
   // Draw stats box
   fill(255);
-  rect(20, 400, 300, 400); // Increased height for spacing
+  rect(20, 400, 300, 400);
 
   fill(50);
   textAlign(CENTER);
@@ -677,26 +679,26 @@ void drawAirportStats(String airport) {
 
   textAlign(LEFT);
   fill(0);
-  text("Departing Flights: " + departingFlights, 30, 450);
-  text("Arriving Flights: " + arrivingFlights, 30, 480);
-  text("Cancelled Flights: " + cancelledFlights, 30, 510);
-  text("Diverted Flights: " + divertedFlights, 30, 540);
-  text("Delayed Flights: " + delayedFlights, 30, 570);
+  text("Total Flights: " + totalFlights, 30, 450);
+  text("Departing Flights: " + departingFlights, 30, 480);
+  text("Arriving Flights: " + arrivingFlights, 30, 510);
+  text("Cancelled Flights: " + cancelledFlights, 30, 540);
+  text("Diverted Flights: " + divertedFlights, 30, 570);
+  text("Delayed Flights: " + delayedFlights, 30, 600);
 
   // Prevent division by zero
-  if (departingFlights == 0) {
-    text("No departing flights to show pie chart", 30, 600);
+  if (totalFlights == 0) {
+    text("No flights to show pie chart", 30, 630);
     return;
   }
 
   // Draw a pie chart of flight statuses
-  
-  int pieX = 170, pieY = 620, pieSize = 100; // Adjusted Y position
+  int pieX = 170, pieY = 660, pieSize = 100;
 
   // Draw pie chart sections
   float startAngle = 0;
 
-  // Normal flights - Cyan
+  // Normal flights - Green
   fill(0, 204, 102);
   arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + normalPercentage * TWO_PI);
   startAngle += normalPercentage * TWO_PI;
@@ -715,7 +717,7 @@ void drawAirportStats(String airport) {
   fill(255, 255, 0);
   arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + delayedPercentage * TWO_PI);
 
-  // Adjusted Legend Positioning
+  // Legend
   int legendX = 20, legendY = height - 130;
 
   // Draw legend rectangles
@@ -731,12 +733,10 @@ void drawAirportStats(String airport) {
   // Draw legend text
   fill(0);
   textAlign(LEFT);
-  text("Normal: " + (int)(normalPercentage * 100) + "%", legendX + 20, legendY + 10);
-  text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", legendX + 20, legendY + 30);
-  text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 20, legendY + 50);
-  text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendX + 20, legendY + 70);
-
-
+  text("Normal: " + (int)(normalPercentage * 100) + "%", legendX + 20, legendY + 12);
+  text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", legendX + 20, legendY + 32);
+  text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 20, legendY + 52);
+  text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendX + 20, legendY + 72);
 }
 
 // YUSUF
@@ -1022,7 +1022,39 @@ void mousePressed() {
   }
 }
 
+int[] getAirportStats(String airport) {
+  int totalFlights = 0;
+  int arrivingFlights = 0;  // Flights where this is the destination
+  int departingFlights = 0; // Flights where this is the origin
+  int cancelledFlights = 0;
+  int divertedFlights = 0;
+  int delayedFlights = 0;
 
+  for (Flight flight : flights) {
+    // Check if flight is departing from or arriving at this airport
+    if (flight.origin.equals(airport) || flight.destination.equals(airport)) {
+      totalFlights++;
+      
+      if (flight.origin.equals(airport)) {
+        departingFlights++;
+      }
+      
+      if (flight.destination.equals(airport)) {
+        arrivingFlights++;
+      }
+      
+      if (flight.cancelled == 1) {
+        cancelledFlights++;
+      } else if (flight.diverted == 1) {
+        divertedFlights++;
+      } else if (flight.actualDeparture - 10 > flight.scheduledDeparture) {
+        delayedFlights++;
+      }
+    }
+  }
+
+  return new int[]{totalFlights, departingFlights, arrivingFlights, cancelledFlights, divertedFlights, delayedFlights};
+}
 
 
 // DANIEL
