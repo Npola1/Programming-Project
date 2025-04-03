@@ -37,12 +37,8 @@ boolean planeVisible = true;
 final int SCREEN_WIDTH = 1600;
 final int SCREEN_HEIGHT = 800;
 
-void settings() {
-  size(SCREEN_WIDTH, SCREEN_HEIGHT);
-}
-
-
 void setup() {
+  size(1600, 800);
   titleFont = createFont("Arial Bold", 24);
   regularFont = createFont("Arial", 14);
 
@@ -60,7 +56,7 @@ void setup() {
 
   // Initially, filtered flights is the same as all flights
   filteredFlights = new ArrayList<Flight>(flights);
-  
+
   planeImage = loadImage("metalBird.png"); // Replace with your image file
   plane = new Plane(0, 0, 3, 2, 50, 0.05, planeImage);
 
@@ -99,7 +95,7 @@ void draw() {
     case 4:
       drawCompare();
       break;
-    case 5:  
+    case 5:
       drawCompareAirlines();
       break;
     case 6:  // Future case for Compare by Airports if needed
@@ -110,12 +106,12 @@ void draw() {
 
   // Draw navigation bar
   drawNavigationBar();
-  
+
   if (planeVisible) {
     plane.update();
     plane.display();
   }
-  
+
 }
 
 void drawMainMenu() {
@@ -152,10 +148,10 @@ void drawCompare() {
   textAlign(LEFT);
 
   // Compare by Flights/Airlines button
-  drawButton("Compare by Airports", width / 2 - 250, 200, 500, 80, currentScreen == 4);
+  drawButton("Compare by Airports", width / 2 - 250, 200, 500, 80, currentScreen == 6);
 
   // Compare by Airports button
-  drawButton("Compare by Flights (Airlines)", width / 2 - 250, 300, 500, 80, currentScreen == 4);
+  drawButton("Compare by Flights (Airlines)", width / 2 - 250, 300, 500, 80, currentScreen == 5);
 }
 
 void drawCompareAirports() {
@@ -171,13 +167,13 @@ void drawCompareAirports() {
   fill(255);
   rect(20, 100, 300, 40);
   fill(0);
-  text("Enter Airport 1: " + searchQuery, 30, 125);
+  text("Enter Airport 1: " + searchAirport, 30, 125);
 
   // Airport 2 input box
   fill(255);
   rect(20, 200, 300, 40);
   fill(0);
-  text("Enter Airport 2: " + searchQuery2, 30, 225);
+  text("Enter Airport 2: " + searchAirport2, 30, 225);
 
   // Draw two large boxes for graphs
   stroke(150);
@@ -188,16 +184,16 @@ void drawCompareAirports() {
   rect(350, 100, 500, 500);
   fill(0);
   textAlign(CENTER);
-  text("Graph 1: " + (searchQuery.isEmpty() ? "No Airport Selected" : searchQuery), 600, 150);
-  drawPieChart(350, 300, searchQuery, 300);
+  text("Graph 1: " + (searchAirport.isEmpty() ? "No Airport Selected" : searchAirport), 600, 150);
+  drawPieChart(350, 300, searchAirport, 300);
 
   // Second box (right)
   fill(220);
   rect(870, 100, 500, 500);
   fill(0);
   textAlign(CENTER);
-  text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airport Selected" : searchQuery2), 1120, 150);
-  drawPieChart(870, 300, searchQuery2, 300);
+  text("Graph 2: " + (searchAirport2.isEmpty() ? "No Airport Selected" : searchAirport2), 1120, 150);
+  drawPieChart(870, 300, searchAirport2, 300);
 
   // Draw comparison box
   fill(255);
@@ -205,20 +201,19 @@ void drawCompareAirports() {
   fill(0);
   textAlign(CENTER);
   text("Comparison", 870, 640);
-  drawComparison(searchQuery, searchQuery2);
+  drawComparison(searchAirport, searchAirport2);
 }
 
-void drawPieChart(float x, float y, String airline, int size) {
-  if (airline.isEmpty()) return;
+void drawPieChart(float x, float y, String airport, int size) {
+  if (airport.isEmpty()) return;
 
   // New code by Yanko
-  int[] list = getFlightStats(airline);
+  int[] list = getFlightStats(airport);
 
   float cancelledPercentage = (float)list[1] / list[0];
   float divertedPercentage = (float)list[2] / list[0];
   float delayedPercentage = (float)list[3] / list[0];
   float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
-  
 
   float pieSize = size;
   float pieX = x + pieSize / 2;
@@ -266,12 +261,11 @@ void drawPieChart(float x, float y, String airline, int size) {
   text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendX + 30, legendY + 105);
 }
 
+void drawComparison(String airport1, String airport2) {
+  if (airport1.isEmpty() || airport2.isEmpty()) return;
 
-void drawComparison(String airline1, String airline2) {
-  if (airline1.isEmpty() || airline2.isEmpty()) return;
-
-  int[] stats1 = getFlightStats(airline1);
-  int[] stats2 = getFlightStats(airline2);
+  int[] stats1 = getFlightStats(airport1);
+  int[] stats2 = getFlightStats(airport2);
 
   float totalFlights1 = stats1[0];
   float totalFlights2 = stats2[0];
@@ -291,14 +285,14 @@ void drawComparison(String airline1, String airline2) {
   text("Delayed Difference: " + nf(delayedPercentage1 - delayedPercentage2, 1, 1) + "%", 370, 710);
 }
 
-int[] getFlightStats(String airline) {
+int[] getFlightStats(String airport) {
   int totalFlights = 0;
   int cancelledFlights = 0;
   int divertedFlights = 0;
   int delayedFlights = 0;
 
   for (Flight flight : flights) {
-    if (flight.airline.equals(airline)) {
+    if (flight.origin.equals(airport) || flight.destination.equals(airport)) {
       totalFlights++;
       if (flight.cancelled == 1) {
         cancelledFlights++;
@@ -313,7 +307,6 @@ int[] getFlightStats(String airline) {
   return new int[]{totalFlights, cancelledFlights, divertedFlights, delayedFlights};
 }
 
-
 void drawCompareAirlines() {
   fill(50);
   textAlign(CENTER);
@@ -327,13 +320,13 @@ void drawCompareAirlines() {
   fill(255);
   rect(20, 100, 300, 40);
   fill(0);
-  text("Enter Airline 1: " + searchAirport, 30, 125);
+  text("Enter Airline 1: " + searchQuery, 30, 125);
 
   // Airline 2 input box
   fill(255);
   rect(20, 200, 300, 40);
   fill(0);
-  text("Enter Airline 2: " + searchAirport2, 30, 225);
+  text("Enter Airline 2: " + searchQuery2, 30, 225);
 
   // Draw matching airlines for searchQuery (Airline 1)
   ArrayList<String> matchingAirlines1 = findMatchingAirlines(searchQuery);
@@ -359,7 +352,7 @@ void drawCompareAirlines() {
   fill(0);
   textAlign(CENTER);
   text("Graph 1: " + (searchQuery.isEmpty() ? "No Airline Selected" : searchQuery), 600, 150);
-  drawPieChart(350, 300, searchQuery, 300);
+  drawPieChartAirlines(350, 300, searchQuery, 300);
 
   // Second box (right)
   fill(220);
@@ -367,7 +360,7 @@ void drawCompareAirlines() {
   fill(0);
   textAlign(CENTER);
   text("Graph 2: " + (searchQuery2.isEmpty() ? "No Airline Selected" : searchQuery2), 1120, 150);
-  drawPieChart(870, 300, searchQuery2, 300);
+  drawPieChartAirlines(870, 300, searchQuery2, 300);
 
   // Draw comparison box
   fill(255);
@@ -375,27 +368,110 @@ void drawCompareAirlines() {
   fill(0);
   textAlign(CENTER);
   text("Comparison", 870, 640);
-  drawComparison(searchQuery, searchQuery2);
+  drawComparisonAirlines(searchQuery, searchQuery2);
 }
 
-void selectAirport1(String airport) {
-  selectedAirport1 = airport;
+void drawPieChartAirlines(float x, float y, String airline, int size) {
+  if (airline.isEmpty()) return;
+
+  // New code by Yanko
+  int[] list = getFlightStatsAirlines(airline);
+
+  float cancelledPercentage = (float)list[1] / list[0];
+  float divertedPercentage = (float)list[2] / list[0];
+  float delayedPercentage = (float)list[3] / list[0];
+  float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
+
+  float pieSize = size;
+  float pieX = x + pieSize / 2;
+  float pieY = y + pieSize / 2;
+
+  // Draw pie chart sections
+  float startAngle = 0;
+
+  // Normal flights - Green
+  fill(0, 204, 102);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + normalPercentage * TWO_PI);
+  startAngle += normalPercentage * TWO_PI;
+
+  // Cancelled flights - Red
+  fill(255, 0, 0);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + cancelledPercentage * TWO_PI);
+  startAngle += cancelledPercentage * TWO_PI;
+
+  // Diverted flights - Orange
+  fill(255, 165, 0);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + divertedPercentage * TWO_PI);
+  startAngle += divertedPercentage * TWO_PI;
+
+  // Delayed flights - Yellow
+  fill(255, 255, 0);
+  arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + delayedPercentage * TWO_PI);
+
+  // **Move Legend to the Right**
+  float legendX = x + pieSize + 50;  // Adjusted X position (to the right)
+  float legendY = y - 40;            // Align with pie chart
+
+  // Draw legend boxes
+  fill(0, 204, 102); rect(legendX, legendY, 20, 20); // Normal - Green
+  fill(255, 0, 0); rect(legendX, legendY + 30, 20, 20); // Cancelled - Red
+  fill(255, 165, 0); rect(legendX, legendY + 60, 20, 20); // Diverted - Orange
+  fill(255, 255, 0); rect(legendX, legendY + 90, 20, 20); // Delayed - Yellow
+
+  // Labels
+  fill(0);
+  textAlign(LEFT);
+  textSize(16);
+  text("Normal: " + (int)(normalPercentage * 100) + "%", legendX + 30, legendY + 15);
+  text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", legendX + 30, legendY + 45);
+  text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 30, legendY + 75);
+  text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendX + 30, legendY + 105);
 }
 
-void selectAirport2(String airport) {
-  selectedAirport2 = airport;
+void drawComparisonAirlines(String airline1, String airline2) {
+  if (airline1.isEmpty() || airline2.isEmpty()) return;
+
+  int[] stats1 = getFlightStatsAirlines(airline1);
+  int[] stats2 = getFlightStatsAirlines(airline2);
+
+  float totalFlights1 = stats1[0];
+  float totalFlights2 = stats2[0];
+
+  float cancelledPercentage1 = stats1[1] / totalFlights1 * 100;
+  float divertedPercentage1 = stats1[2] / totalFlights1 * 100;
+  float delayedPercentage1 = stats1[3] / totalFlights1 * 100;
+
+  float cancelledPercentage2 = stats2[1] / totalFlights2 * 100;
+  float divertedPercentage2 = stats2[2] / totalFlights2 * 100;
+  float delayedPercentage2 = stats2[3] / totalFlights2 * 100;
+
+  fill(0);
+  textAlign(LEFT);
+  text("Cancelled Difference: " + nf(cancelledPercentage1 - cancelledPercentage2, 1, 1) + "%", 370, 670);
+  text("Diverted Difference: " + nf(divertedPercentage1 - divertedPercentage2, 1, 1) + "%", 370, 690);
+  text("Delayed Difference: " + nf(delayedPercentage1 - delayedPercentage2, 1, 1) + "%", 370, 710);
 }
 
-ArrayList<String> findMatchingAirports1(String searchQuery) {
-  ArrayList<String> matchingAirports = new ArrayList<String>();
+int[] getFlightStatsAirlines(String airline) {
+  int totalFlights = 0;
+  int cancelledFlights = 0;
+  int divertedFlights = 0;
+  int delayedFlights = 0;
 
-  for (String airportCode : airports.keySet()) {
-    if (airportCode.toLowerCase().contains(searchQuery.toLowerCase())) {
-      matchingAirports.add(airportCode);
+  for (Flight flight : flights) {
+    if (flight.airline.equals(airline)) {
+      totalFlights++;
+      if (flight.cancelled == 1) {
+        cancelledFlights++;
+      } else if (flight.diverted == 1) {
+        divertedFlights++;
+      } else if (flight.actualDeparture - 10 > flight.scheduledDeparture) {
+        delayedFlights++;
+      }
     }
   }
 
-  return matchingAirports;
+  return new int[]{totalFlights, cancelledFlights, divertedFlights, delayedFlights};
 }
 
 void drawAirportView() {
@@ -411,10 +487,10 @@ void drawAirportView() {
   fill(255);
   rect(20, 100, 300, 40);
   fill(0);
-  text("Search Airport: " + searchQuery, 30, 125);
+  text("Search Airport: " + searchAirport, 30, 125);
 
   // Draw airport list based on search
-  ArrayList<String> matchingAirports = findMatchingAirports(searchQuery);
+  ArrayList<String> matchingAirports = findMatchingAirports(searchAirport);
   for (int i = 0; i < min(10, matchingAirports.size()); i++) {
     String airport = matchingAirports.get(i);
     boolean isSelected = airport.equals(selectedAirport);
@@ -653,25 +729,25 @@ void drawSummaryVisualization() {
 
 // SUMAMA
 void drawAirportStats(String airport) {
+
+  //drawPieChart(170, 650, airport, 100);
   // Count flights to/from the selected airport
-  int[] stats = getAirportStats(airport);
-  
-  int totalFlights = stats[0];
-  int departingFlights = stats[1];
-  int arrivingFlights = stats[2];
-  int cancelledFlights = stats[3];
-  int divertedFlights = stats[4];
-  int delayedFlights = stats[5];
-  
-  // Calculate percentages for pie chart
-  float cancelledPercentage = totalFlights > 0 ? (float)cancelledFlights / totalFlights : 0;
-  float divertedPercentage = totalFlights > 0 ? (float)divertedFlights / totalFlights : 0;
-  float delayedPercentage = totalFlights > 0 ? (float)delayedFlights / totalFlights : 0;
+  int[] list = getFlightStats(airport);
+
+  float cancelledPercentage = (float)list[1] / list[0];
+  float divertedPercentage = (float)list[2] / list[0];
+  float delayedPercentage = (float)list[3] / list[0];
   float normalPercentage = 1 - cancelledPercentage - divertedPercentage - delayedPercentage;
+
+  int departingFlights = list[0];
+  int arrivingFlights = list[1];
+  int cancelledFlights = list[2];
+  int divertedFlights = list[3];
+  int delayedFlights = list[4];
 
   // Draw stats box
   fill(255);
-  rect(20, 400, 300, 400);
+  rect(20, 400, 300, 400); // Increased height for spacing
 
   fill(50);
   textAlign(CENTER);
@@ -679,26 +755,26 @@ void drawAirportStats(String airport) {
 
   textAlign(LEFT);
   fill(0);
-  text("Total Flights: " + totalFlights, 30, 450);
-  text("Departing Flights: " + departingFlights, 30, 480);
-  text("Arriving Flights: " + arrivingFlights, 30, 510);
-  text("Cancelled Flights: " + cancelledFlights, 30, 540);
-  text("Diverted Flights: " + divertedFlights, 30, 570);
-  text("Delayed Flights: " + delayedFlights, 30, 600);
+  text("Departing Flights: " + departingFlights, 30, 450);
+  text("Arriving Flights: " + arrivingFlights, 30, 480);
+  text("Cancelled Flights: " + cancelledFlights, 30, 510);
+  text("Diverted Flights: " + divertedFlights, 30, 540);
+  text("Delayed Flights: " + delayedFlights, 30, 570);
 
   // Prevent division by zero
-  if (totalFlights == 0) {
-    text("No flights to show pie chart", 30, 630);
+  if (departingFlights == 0) {
+    text("No departing flights to show pie chart", 30, 600);
     return;
   }
 
   // Draw a pie chart of flight statuses
-  int pieX = 170, pieY = 660, pieSize = 100;
+
+  int pieX = 170, pieY = 620, pieSize = 100; // Adjusted Y position
 
   // Draw pie chart sections
   float startAngle = 0;
 
-  // Normal flights - Green
+  // Normal flights - Cyan
   fill(0, 204, 102);
   arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + normalPercentage * TWO_PI);
   startAngle += normalPercentage * TWO_PI;
@@ -717,7 +793,7 @@ void drawAirportStats(String airport) {
   fill(255, 255, 0);
   arc(pieX, pieY, pieSize, pieSize, startAngle, startAngle + delayedPercentage * TWO_PI);
 
-  // Legend
+  // Adjusted Legend Positioning
   int legendX = 20, legendY = height - 130;
 
   // Draw legend rectangles
@@ -733,10 +809,11 @@ void drawAirportStats(String airport) {
   // Draw legend text
   fill(0);
   textAlign(LEFT);
-  text("Normal: " + (int)(normalPercentage * 100) + "%", legendX + 20, legendY + 12);
-  text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", legendX + 20, legendY + 32);
-  text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 20, legendY + 52);
-  text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendX + 20, legendY + 72);
+  text("Normal: " + (int)(normalPercentage * 100) + "%", legendX + 20, legendY + 10);
+  text("Cancelled: " + (int)(cancelledPercentage * 100) + "%", legendX + 20, legendY + 30);
+  text("Diverted: " + (int)(divertedPercentage * 100) + "%", legendX + 20, legendY + 50);
+  text("Delayed: " + (int)(delayedPercentage * 100) + "%", legendX + 20, legendY + 70);
+
 }
 
 // YUSUF
@@ -868,16 +945,15 @@ void drawLatenessVisualization() {
 // 0 = none, 1 = Airline 1 field, 2 = Airline 2 field
 int activeAirlineField = 0;
 
-
 void keyPressed() {
-  if (currentScreen == 6) { // Compare Airports screen
-    if (activeAirlineField == 1) { // Update Airport 1 field
+  if (currentScreen == 5) { // Compare Airlines screen
+    if (activeAirlineField == 1) { // Update Airline 1 field
       if (key == BACKSPACE && searchQuery.length() > 0) {
         searchQuery = searchQuery.substring(0, searchQuery.length() - 1);
       } else if (key >= ' ' && key <= 'z') {
         searchQuery += key;
       }
-    } else if (activeAirlineField == 2) { // Update Airport 2 field
+    } else if (activeAirlineField == 2) { // Update Airline 2 field
       if (key == BACKSPACE && searchQuery2.length() > 0) {
         searchQuery2 = searchQuery2.substring(0, searchQuery2.length() - 1);
       } else if (key >= ' ' && key <= 'z') {
@@ -886,10 +962,10 @@ void keyPressed() {
     }
   } else if (currentScreen == 1) {
     // Existing airport view key handling:
-    if (key == BACKSPACE && searchQuery.length() > 0) {
-      searchQuery = searchQuery.substring(0, searchQuery.length() - 1);
+    if (key == BACKSPACE && searchAirport.length() > 0) {
+      searchAirport = searchAirport.substring(0, searchAirport.length() - 1);
     } else if (key >= ' ' && key <= 'z') {
-      searchQuery += key;
+      searchAirport += key;
     }
   } else if (currentScreen == 2) {
     // Date range view key handling:
@@ -946,7 +1022,7 @@ void mousePressed() {
 
   // Airport view - airport selection
   if (currentScreen == 1) {
-    ArrayList<String> matchingAirports = findMatchingAirports(searchQuery);
+    ArrayList<String> matchingAirports = findMatchingAirports(searchAirport);
     for (int i = 0; i < min(10, matchingAirports.size()); i++) {
       if (mouseX >= 20 && mouseX <= 320 &&
           mouseY >= 150 + i * 30 && mouseY <= 175 + i * 30) {
@@ -965,16 +1041,16 @@ void mousePressed() {
     }
   }
 
-  // Compare Airports screen
-  if (currentScreen == 6) {
-    // Check if click is in Airport 1 input box:
+  // Compare Airlines screen
+  if (currentScreen == 5) {
+    // Check if click is in Airline 1 input box:
     if (mouseX >= 20 && mouseX <= 320 && mouseY >= 100 && mouseY <= 140) {
-      activeAirlineField = 1;  // Activate Airport 1 field
+      activeAirlineField = 1;  // Activate Airline 1 field
       return;
     }
-    // Check if click is in Airport 2 input box:
+    // Check if click is in Airline 2 input box:
     if (mouseX >= 20 && mouseX <= 320 && mouseY >= 200 && mouseY <= 240) {
-      activeAirlineField = 2;  // Activate Airport 2 field
+      activeAirlineField = 2;  // Activate Airline 2 field
       return;
     }
   }
@@ -1021,41 +1097,6 @@ void mousePressed() {
     }
   }
 }
-
-int[] getAirportStats(String airport) {
-  int totalFlights = 0;
-  int arrivingFlights = 0;  // Flights where this is the destination
-  int departingFlights = 0; // Flights where this is the origin
-  int cancelledFlights = 0;
-  int divertedFlights = 0;
-  int delayedFlights = 0;
-
-  for (Flight flight : flights) {
-    // Check if flight is departing from or arriving at this airport
-    if (flight.origin.equals(airport) || flight.destination.equals(airport)) {
-      totalFlights++;
-      
-      if (flight.origin.equals(airport)) {
-        departingFlights++;
-      }
-      
-      if (flight.destination.equals(airport)) {
-        arrivingFlights++;
-      }
-      
-      if (flight.cancelled == 1) {
-        cancelledFlights++;
-      } else if (flight.diverted == 1) {
-        divertedFlights++;
-      } else if (flight.actualDeparture - 10 > flight.scheduledDeparture) {
-        delayedFlights++;
-      }
-    }
-  }
-
-  return new int[]{totalFlights, departingFlights, arrivingFlights, cancelledFlights, divertedFlights, delayedFlights};
-}
-
 
 // DANIEL
 void loadFlightData(String filename) {
@@ -1186,7 +1227,6 @@ void filterFlightsByDateRange(String startDate, String endDate) {
   }
   startIndex = 0; // Reset the start index for pagination
 }
-
 
 // Flight class
 class Flight {
