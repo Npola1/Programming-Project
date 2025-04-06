@@ -22,7 +22,7 @@ class Plane {
       exploded = true;
       explosionStartTime = millis();
       explosionX = x;
-      explosionY = height - explosionImage.height / 2;
+      explosionY = height - explosionImage.height;
     }
   }
 
