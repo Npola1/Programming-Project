@@ -1,7 +1,7 @@
 class Plane {
   float x, y, speedX, speedY, amplitude, frequency, time;
   PImage img;
-  
+
   Plane(float startX, float startY, float sX, float sY, float a, float f, PImage image) {
     x = startX;
     y = startY;
@@ -12,16 +12,20 @@ class Plane {
     time = 0;
     img = image;
   }
-  
+
   void update() {
     x += speedX;
     y += speedY + amplitude * sin(time);
     time += frequency;
-    if (x > width || y > height) {
-      planeVisible = false; // Make the plane disappear once it falls off screen
+    if (y > height) {
+      planeVisible = false;
+      exploded = true;
+      explosionStartTime = millis();
+      explosionX = x;
+      explosionY = height - explosionImage.height / 2;
     }
   }
-  
+
   void display() {
     if (img != null) {
       image(img, x, y);

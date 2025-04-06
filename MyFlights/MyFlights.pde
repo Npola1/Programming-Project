@@ -31,8 +31,12 @@ String selectedAirport1="";
 String selectedAirport2="";
 int activeDropdown = 0;
 PImage planeImage;
+PImage explosionImage;
 Plane plane;
 boolean planeVisible = true;
+boolean exploded = false;
+float explosionX, explosionY;
+int explosionStartTime;
 // Screen dimensions
 final int SCREEN_WIDTH = 1600;
 final int SCREEN_HEIGHT = 800;
@@ -58,8 +62,8 @@ void setup() {
   filteredFlights = new ArrayList<Flight>(flights);
 
   planeImage = loadImage("metalBird.png"); // Replace with your image file
+  explosionImage = loadImage("elmoboom.png"); // Replace with your explosion image file
   plane = new Plane(0, 0, 3, 2, 50, 0.05, planeImage);
-
 }
 
 void draw() {
@@ -106,12 +110,17 @@ void draw() {
 
   // Draw navigation bar
   drawNavigationBar();
-
+ 
   if (planeVisible) {
     plane.update();
     plane.display();
+  } else if (exploded) {
+    if (millis() - explosionStartTime < 3000) {
+      image(explosionImage, explosionX, explosionY);
+    } else {
+      exploded = false; // Stop showing explosion after 3 seconds
+    }
   }
-
 }
 
 void drawMainMenu() {
