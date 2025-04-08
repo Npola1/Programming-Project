@@ -1,4 +1,5 @@
 import java.util.*;
+import ddf.minim.*;
 
 // Flight Data Visualization System
 // Created for CSU11013 Programming Project 2025
@@ -37,12 +38,17 @@ boolean planeVisible = true;
 boolean exploded = false;
 float explosionX, explosionY;
 int explosionStartTime;
+Minim minim;
+AudioPlayer player;
 // Screen dimensions
 final int SCREEN_WIDTH = 1600;
 final int SCREEN_HEIGHT = 800;
 
 void setup() {
   size(1600, 800);
+  minim = new Minim(this);
+  player = minim.loadFile("Song.mp3");
+  player.play();
   titleFont = createFont("Arial Bold", 24);
   regularFont = createFont("Arial", 14);
 
@@ -1342,4 +1348,10 @@ class Airport {
   String city;
   String state;
   int wac;
+}
+
+void stop() {
+    player.close();
+    minim.stop();
+    super.stop();
 }
